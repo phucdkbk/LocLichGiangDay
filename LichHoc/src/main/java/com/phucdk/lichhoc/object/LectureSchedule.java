@@ -15,7 +15,7 @@ public class LectureSchedule {
 
     private String campus;
     private String hour;
-    private SchoolClass schoolCalss;
+    private SchoolClass schoolClass;
     private Date date;
     private Teacher teacher;
     private String lession;
@@ -36,13 +36,13 @@ public class LectureSchedule {
         this.hour = hour;
     }
 
-    public SchoolClass getSchoolCalss() {
-        return schoolCalss;
+    public SchoolClass getSchoolClass() {
+        return schoolClass;
     }
 
-    public void setSchoolCalss(SchoolClass schoolCalss) {
-        this.schoolCalss = schoolCalss;
-    }
+    public void setSchoolClass(SchoolClass schoolClass) {
+        this.schoolClass = schoolClass;
+    }    
 
     public Date getDate() {
         return date;

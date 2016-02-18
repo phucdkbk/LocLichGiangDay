@@ -5,7 +5,8 @@
  */
 package com.phucdk.lichhoc.main;
 
-import com.phucdk.lichhoc.util.ExcelUtil;
+import com.phucdk.lichhoc.object.GeneralData;
+import com.phucdk.lichhoc.util.ExcelReadDataUtil;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,7 +26,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class ExtractInvidualSchedule {
 
     public static void main(String[] args) throws Exception {
-        ExcelUtil.readData("D:\\20150831\\Projects\\LoclichCongtac\\1. General file.xlsx");
+        GeneralData generalData = ExcelReadDataUtil.readData("D:\\20150831\\Projects\\LoclichCongtac\\1. General file.xlsx");
+        
     }
     
     private void testReadFile() throws FileNotFoundException, IOException{

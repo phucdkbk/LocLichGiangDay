@@ -31,5 +31,10 @@ public class SchoolClass {
     public void setListInfo(List<String> listInfo) {
         this.listInfo = listInfo;
     }            
+
+    public SchoolClass(String schoolClassName) {
+        this.schoolClassName = schoolClassName;
+    }
+    
     
 }

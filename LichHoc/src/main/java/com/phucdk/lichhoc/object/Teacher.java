@@ -6,6 +6,7 @@
 package com.phucdk.lichhoc.object;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -40,6 +41,25 @@ public class Teacher {
     public void setListNames(List<String> listNames) {
         this.listNames = listNames;
     }            
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 89 * hash + Objects.hashCode(this.fullName);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Teacher other = (Teacher) obj;
+        return Objects.equals(this.fullName, other.fullName);
+    }
     
     
 }
