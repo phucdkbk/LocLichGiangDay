@@ -6,6 +6,7 @@
 package com.phucdk.lichhoc.object;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,6 +17,7 @@ public class GeneralData {
 
     private List<Teacher> listTeachers;
     private List<LectureSchedule> listLectureSchedules;
+    private Date startDateOfWeek;
 
     public List<Teacher> getListTeachers() {
         return listTeachers;
@@ -38,4 +40,11 @@ public class GeneralData {
         this.listLectureSchedules = new ArrayList<>();
     }
 
+    public Date getStartDateOfWeek() {
+        return startDateOfWeek;
+    }
+
+    public void setStartDateOfWeek(Date startDateOfWeek) {
+        this.startDateOfWeek = startDateOfWeek;
+    }        
 }
