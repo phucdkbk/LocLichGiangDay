@@ -59,7 +59,7 @@ public class ExcelReadDataUtil {
             // Just add it to the sheet on the new workbook.
             //newSheet.addMergedRegion(mergedRegion);
             listMergedRegion.add(new MergeRegion(mergedRegion));
-            System.out.println(mergedRegion.formatAsString());
+            //System.out.println(mergedRegion.formatAsString());
         }
 
         int startRow = Constants.ROW.START_ROW;
@@ -127,7 +127,7 @@ public class ExcelReadDataUtil {
             XSSFRow row;
             XSSFCell cell;
             String cellValue = null;
-            System.out.println(fromRow);
+            //System.out.println(fromRow);
             while (StringUtils.isEmpty(cellValue) && startRow < numberOfRow) {
                 startRow++;
                 row = sheet.getRow(startRow);

@@ -8,6 +8,7 @@ package com.phucdk.lichhoc.util;
 import com.phucdk.lichhoc.object.GeneralData;
 import com.phucdk.lichhoc.object.LectureSchedule;
 import com.phucdk.lichhoc.object.Teacher;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -21,10 +22,12 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
@@ -33,51 +36,50 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 public class ExcelExportUtil {
 
-    public static void readAndRewrite() throws FileNotFoundException, IOException, InvalidFormatException {
-        InputStream inp = new FileInputStream("D:\\testPOI\\test1.xlsx");
-        //InputStream inp = new FileInputStream("workbook.xlsx");
-
-        Workbook wb = WorkbookFactory.create(inp);
-        Sheet sheet = wb.getSheetAt(0);
-        Row row = sheet.getRow(2);
-        Cell cell = row.getCell(3);
-        if (cell == null) {
-            cell = row.createCell(3);
-        }
-        cell.setCellType(Cell.CELL_TYPE_STRING);
-        cell.setCellValue("a test");
-
-        // Write the output to a file
-        FileOutputStream fileOut = new FileOutputStream("test1.xls");
-        wb.write(fileOut);
-        fileOut.close();
-    }
-
-    public static void exportFile(GeneralData generalData) throws FileNotFoundException, IOException, Exception {
-        //for (int i = 0; i < generalData.getListTeachers().size(); i++) {
-        for (int i = 0; i < 1; i++) {
+    public static void exportFile(GeneralData generalData, String outputFolder) throws FileNotFoundException, IOException, Exception {
+        outputFolder = outputFolder + "\\" + DateTimeUtils.convertDateToString(new Date(), "yyyyMMdd_HHmmss");
+        for (int i = 0; i < generalData.getListTeachers().size(); i++) {
+            //for (int i = 0; i < 1; i++) {
             Teacher teacher = generalData.getListTeachers().get(i);
 
-            Workbook wb = new XSSFWorkbook();
+            XSSFWorkbook wb = new XSSFWorkbook();
             CreationHelper createHelper = wb.getCreationHelper();
             Sheet sheet = wb.createSheet(teacher.getFullName());
 
             //-----------------------  row 0 --------------------
             sheet.createRow((short) 0);
             //-----------------------  row 1 --------------------
+            CellStyle cellStyleBold = wb.createCellStyle();
+            Font font = wb.createFont();//Create font
+            font.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
+            cellStyleBold.setFont(font);//set it to bold
+
             Row row1 = sheet.createRow((short) 1);
             Cell cell_10 = row1.createCell(0);
-            cell_10.setCellValue("Teacher");
+            cell_10.setCellStyle(cellStyleBold);
+            cell_10.setCellValue("Teacher:");
 
             Cell cell_11 = row1.createCell(1);
+            cell_11.setCellStyle(cellStyleBold);
             cell_11.setCellValue(teacher.getFullName());
             //-----------------------  row 2 --------------------
             Row row2 = sheet.createRow((short) 2);
-            row2.createCell(0).setCellValue("Tel:");
-            row2.createCell(3).setCellValue("Email");
+            Cell cell_20 = row2.createCell(0);
+            cell_20.setCellStyle(cellStyleBold);
+            cell_20.setCellValue("Tel:");
+            Cell cell_23 = row2.createCell(3);
+            cell_23.setCellStyle(cellStyleBold);
+            cell_23.setCellValue("Email");
             //-----------------------  row 3 --------------------
+            CellStyle cellStyleTitle = wb.createCellStyle();
+            XSSFFont fontTitle = wb.createFont();//Create font
+            fontTitle.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
+            fontTitle.setFontHeightInPoints((short) 14);
+            cellStyleTitle.setFont(fontTitle);//set it to bold
             Row row3 = sheet.createRow((short) 3);
-            row3.createCell(0).setCellValue(getWeekTitle(generalData));
+            Cell cell_30 = row3.createCell(0);
+            cell_30.setCellStyle(cellStyleTitle);
+            cell_30.setCellValue(getWeekTitle(generalData));
             //-----------------------  row 4 --------------------
             Row row4 = sheet.createRow((short) 4);
             Cell cell_40 = row4.createCell(0);
@@ -97,21 +99,31 @@ public class ExcelExportUtil {
             Cell cell_47 = row4.createCell(7);
             cell_47.setCellValue("Sun");
             //-----------------------  row 5 --------------------
+            CellStyle cellStyleDate = wb.createCellStyle();
+            cellStyleDate.setDataFormat(createHelper.createDataFormat().getFormat("dd-MMM"));
+
             Row row5 = sheet.createRow((short) 5);
             Cell cell_51 = row5.createCell(1);
-            cell_51.setCellValue("Mon");
+            cell_51.setCellStyle(cellStyleDate);
+            cell_51.setCellValue(generalData.getStartDateOfWeek());
             Cell cell_52 = row5.createCell(2);
-            cell_52.setCellValue("Tue");
+            cell_52.setCellStyle(cellStyleDate);
+            cell_52.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 1));
             Cell cell_53 = row5.createCell(3);
-            cell_53.setCellValue("Wed");
+            cell_53.setCellStyle(cellStyleDate);
+            cell_53.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 2));
             Cell cell_54 = row5.createCell(4);
-            cell_54.setCellValue("Thu");
+            cell_54.setCellStyle(cellStyleDate);
+            cell_54.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 3));
             Cell cell_55 = row5.createCell(5);
-            cell_55.setCellValue("Fri");
+            cell_55.setCellStyle(cellStyleDate);
+            cell_55.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 4));
             Cell cell_56 = row5.createCell(6);
-            cell_56.setCellValue("Sat");
+            cell_56.setCellStyle(cellStyleDate);
+            cell_56.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 5));
             Cell cell_57 = row5.createCell(7);
-            cell_57.setCellValue("Sun");
+            cell_57.setCellStyle(cellStyleDate);
+            cell_57.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 6));
             //---------------------------------------------------
             List<LectureSchedule> listLectureSchedules = getListLectureScheduleByTeacher(generalData, teacher);
             List<String> listTimes = getListTimes(listLectureSchedules);
@@ -152,15 +164,12 @@ public class ExcelExportUtil {
                     }
                 }
             }
-
-//            Cell cell3 = row.createCell(3);
-//
-//            CellStyle cellStyle = wb.createCellStyle();
-//            cellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/MM/yyyy"));
-//            cell3.setCellStyle(cellStyle);
-//            cell3.setCellValue(new Date());
-            // Write the output to a file
-            FileOutputStream fileOut = new FileOutputStream("D:\\20150831\\Projects\\LoclichCongtac\\output\\test.xlsx");
+            
+            File folderFile = new File(outputFolder);
+            if (!folderFile.exists()) {
+                folderFile.mkdirs();
+            }
+            FileOutputStream fileOut = new FileOutputStream(outputFolder + "\\" + teacher.getFullName() + ".xlsx");
             wb.write(fileOut);
             fileOut.close();
         }
@@ -187,9 +196,9 @@ public class ExcelExportUtil {
 
     private static List<LectureSchedule> getListLectureScheduleByTeacher(GeneralData generalData, Teacher teacher) {
         List<LectureSchedule> listLectureSchedules = new ArrayList<>();
-        for(int i = 0; i<generalData.getListLectureSchedules().size(); i++){
+        for (int i = 0; i < generalData.getListLectureSchedules().size(); i++) {
             LectureSchedule lectureSchedule = generalData.getListLectureSchedules().get(i);
-            if(lectureSchedule.getTeacher().equals(teacher)){
+            if (lectureSchedule.getTeacher().equals(teacher)) {
                 listLectureSchedules.add(lectureSchedule);
             }
         }

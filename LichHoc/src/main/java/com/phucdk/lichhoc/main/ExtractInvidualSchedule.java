@@ -8,66 +8,102 @@ package com.phucdk.lichhoc.main;
 import com.phucdk.lichhoc.object.GeneralData;
 import com.phucdk.lichhoc.util.ExcelExportUtil;
 import com.phucdk.lichhoc.util.ExcelReadDataUtil;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+
+
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
-/**
- *
- * @author Administrator
- */
-public class ExtractInvidualSchedule {
+public class ExtractInvidualSchedule extends JFrame {
 
-    public static void main(String[] args) throws Exception {
-        GeneralData generalData = ExcelReadDataUtil.readData("D:\\20150831\\Projects\\LoclichCongtac\\1. General file.xlsx");
-        ExcelExportUtil.exportFile(generalData);
+    private final JTextField inputLabel = new JTextField();
+    private final JTextField inputFile = new JTextField();
+    private final JTextField outputLabel = new JTextField();
+    private final JTextField outputFolder = new JTextField();
+    private final JTextField result = new JTextField();
+
+    private final JButton open = new JButton("Open general file");
+    private final JButton save = new JButton("Process filter");
+
+    public ExtractInvidualSchedule() {
+        JPanel p = new JPanel();
+        save.addActionListener(new ProcessFilter());
+        p.add(save);
+        Container cp = getContentPane();
+        cp.add(p, BorderLayout.SOUTH);
+
+        p = new JPanel();
+        p.setLayout(new GridLayout(7, 1));
+        inputLabel.setEditable(false);
+        inputLabel.setText("Input file:");
+        p.add(inputLabel);
+        inputFile.setEditable(false);
+        p.add(inputFile);
+        open.addActionListener(new OpenL());
+        p.add(open);
+        outputLabel.setEditable(false);
+        outputLabel.setText("Output folder:");
+        p.add(outputLabel);
+        outputFolder.setEditable(true);
+        outputFolder.setText("D:\\Output");
+        p.add(outputFolder);
+        result.setEditable(false);
+        p.add(result);
+
+        cp.add(p, BorderLayout.NORTH);
     }
-    
-    private void testReadFile() throws FileNotFoundException, IOException{
-        File myFile = new File("D:\\20150831\\Projects\\LoclichCongtac\\TestPOI\\test1.xlsx");
-        FileInputStream fis = new FileInputStream(myFile);
-// Finds the workbook instance for XLSX file
-        XSSFWorkbook myWorkBook = new XSSFWorkbook(fis);
-// Return first sheet from the XLSX workbook
-        XSSFSheet mySheet = myWorkBook.getSheetAt(0);
-// Get iterator to all the rows in current sheet
-        Iterator<Row> rowIterator = mySheet.iterator();
-// Traversing over each row of XLSX file
-        while (rowIterator.hasNext()) {
-            Row row = rowIterator.next();
-// For each row, iterate through each columns
-            Iterator<Cell> cellIterator = row.cellIterator();
-            while (cellIterator.hasNext()) {
-                Cell cell = cellIterator.next();
-                switch (cell.getCellType()) {
-                    case Cell.CELL_TYPE_STRING:
-                        System.out.print(cell.getStringCellValue() + "\t");
-                        break;
-                    case Cell.CELL_TYPE_NUMERIC:
-                        System.out.print(cell.getNumericCellValue() + "\t");
-                        break;
-                    case Cell.CELL_TYPE_BOOLEAN:
-                        System.out.print(cell.getBooleanCellValue() + "\t");
-                        break;
-                    default:
-                }
+
+    class OpenL implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser c = new JFileChooser();            
+            int rVal = c.showOpenDialog(ExtractInvidualSchedule.this);
+            if (rVal == JFileChooser.APPROVE_OPTION) {
+                inputFile.setText(c.getCurrentDirectory().toString() + "\\" + c.getSelectedFile().getName());
             }
-            System.out.println("");
-        }
-        for (int i = 0; i < mySheet.getNumMergedRegions(); i++) {
-            CellRangeAddress mergedRegion = mySheet.getMergedRegion(i);
-            // Just add it to the sheet on the new workbook.
-            //newSheet.addMergedRegion(mergedRegion);
-            System.out.println(mergedRegion.formatAsString());
+            if (rVal == JFileChooser.CANCEL_OPTION) {
+                inputFile.setText("");
+            }
         }
     }
 
+    class ProcessFilter implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            GeneralData generalData;
+            try {
+                generalData = ExcelReadDataUtil.readData(inputFile.getText());
+                ExcelExportUtil.exportFile(generalData, outputFolder.getText());
+                result.setText("Filter Done!");
+            } catch (IOException ex) {
+                Logger.getLogger(ExtractInvidualSchedule.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                Logger.getLogger(ExtractInvidualSchedule.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+    }
+
+    public static void main(String[] args) {
+        run(new ExtractInvidualSchedule(), 550, 350);
+    }
+
+    public static void run(JFrame frame, int width, int height) {
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(width, height);
+        frame.setVisible(true);
+    }
 }

@@ -35,10 +35,17 @@ public class DateTimeUtils {
         return cal.get(Calendar.DAY_OF_WEEK);
     }
 
-    static Date getSundayOfWeek(Date startDateOfWeek) {
+    public static Date getSundayOfWeek(Date startDateOfWeek) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDateOfWeek);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+        return cal.getTime();
+    }
+    
+    public static Date addDate(Date date, int increament){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.DATE, increament);
         return cal.getTime();
     }
     
