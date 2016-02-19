@@ -64,6 +64,7 @@ public class ExcelReadDataUtil {
 
         int startRow = Constants.ROW.START_ROW;
         Date startDateOfWeek = getCell(1, Constants.COLUMN.MONDAY_COLUMN, mySheet).getDateCellValue();
+        generalData.setStartDateOfWeek(startDateOfWeek);
         while (haveNextClass(startRow, mySheet)) {
             ClassRowPair classRowPair = getNextClassRowPair(startRow, mySheet);
             if (classRowPair != null) {
@@ -77,7 +78,7 @@ public class ExcelReadDataUtil {
                         String schoolClassName = getStringCellValue(classRowPair.getFromRow(), Constants.COLUMN.SCHOOL_CLASS_COLUMN, mySheet);
                         String time = getStringCellValue(classRowPair.getFromRow(), Constants.COLUMN.TIME_COLUMN, mySheet);
                         SchoolClass schoolClass = new SchoolClass(schoolClassName);
-                        Date date = getDate(startDateOfWeek, i);
+                        Date date = getDateOfColumn(startDateOfWeek, i);
                         lectureSchedule.setCampus(campus);
                         lectureSchedule.setSchoolClass(schoolClass);
                         lectureSchedule.setDate(date);
@@ -180,7 +181,7 @@ public class ExcelReadDataUtil {
         return null;
     }
 
-    private static Date getDate(Date startDateOfWeek, int dateColumn) {
+    private static Date getDateOfColumn(Date startDateOfWeek, int dateColumn) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDateOfWeek);
         cal.add(Calendar.DATE, dateColumn - Constants.COLUMN.MONDAY_COLUMN);

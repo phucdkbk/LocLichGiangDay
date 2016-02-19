@@ -6,6 +6,7 @@
 package com.phucdk.lichhoc.main;
 
 import com.phucdk.lichhoc.object.GeneralData;
+import com.phucdk.lichhoc.util.ExcelExportUtil;
 import com.phucdk.lichhoc.util.ExcelReadDataUtil;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +28,7 @@ public class ExtractInvidualSchedule {
 
     public static void main(String[] args) throws Exception {
         GeneralData generalData = ExcelReadDataUtil.readData("D:\\20150831\\Projects\\LoclichCongtac\\1. General file.xlsx");
-        
+        ExcelExportUtil.exportFile(generalData);
     }
     
     private void testReadFile() throws FileNotFoundException, IOException{
