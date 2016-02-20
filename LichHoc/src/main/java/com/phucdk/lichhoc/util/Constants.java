@@ -18,6 +18,11 @@ public interface Constants {
         public static final int SUNDAY_COLUMN = 15;
         public static final int CAMPUS_COLUMN = 4;
         public static final int SCHOOL_CLASS_COLUMN = 6;
+
+        public interface INVIDUAL {
+
+            public static final int SUNDAY_COLUMN = 7;
+        }
     }
 
     public interface ROW {
