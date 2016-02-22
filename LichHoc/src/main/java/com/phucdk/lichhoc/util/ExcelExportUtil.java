@@ -39,26 +39,29 @@ public class ExcelExportUtil {
     public static void exportFile(GeneralData generalData, String outputFolder) throws FileNotFoundException, IOException, Exception {
         outputFolder = outputFolder + "\\" + DateTimeUtils.convertDateToString(new Date(), "yyyyMMdd_HHmmss");
         for (int i = 0; i < generalData.getListTeachers().size(); i++) {
-        //for (int i = 0; i < 1; i++) {
+            //for (int i = 0; i < 1; i++) {
             Teacher teacher = generalData.getListTeachers().get(i);
+            
+            if(teacher.getFullName().toLowerCase().equals("mike rush")){
+                int debug =1;
+            }
 
             XSSFWorkbook wb = new XSSFWorkbook();
             CreationHelper createHelper = wb.getCreationHelper();
             Sheet sheet = wb.createSheet(teacher.getFullName());
             sheet.setDisplayGridlines(false);
             sheet.setColumnWidth(0, 1500);
-            sheet.setColumnWidth(1, 3200);
-            sheet.setColumnWidth(2, 3200);
-            sheet.setColumnWidth(3, 3200);
-            sheet.setColumnWidth(4, 3200);
-            sheet.setColumnWidth(5, 3200);
-            sheet.setColumnWidth(6, 3200);
-            sheet.setColumnWidth(7, 3200);
+            sheet.setColumnWidth(1, 4200);
+            sheet.setColumnWidth(2, 4200);
+            sheet.setColumnWidth(3, 4200);
+            sheet.setColumnWidth(4, 4200);
+            sheet.setColumnWidth(5, 4200);
+            sheet.setColumnWidth(6, 4200);
+            sheet.setColumnWidth(7, 4200);
 
 //            for (int j = Constants.COLUMN.INVIDUAL.SUNDAY_COLUMN + 2; j < 16384; j++) {
 //                sheet.setColumnHidden(j, true);
 //            }
-
             //-----------------------  row 0 --------------------
             sheet.createRow((short) 0);
             //-----------------------  row 1 --------------------
@@ -152,7 +155,7 @@ public class ExcelExportUtil {
             cellStyleCell_50.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
             cellStyleCell_50.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
             cellStyleCell_50.setAlignment(HorizontalAlignment.CENTER);
-            cellStyleCell_50.setBorderTop(HSSFCellStyle.BORDER_THIN);
+            //cellStyleCell_50.setBorderTop(HSSFCellStyle.BORDER_THIN);
             cellStyleCell_50.setBorderRight(HSSFCellStyle.BORDER_THIN);
             cellStyleCell_50.setBorderLeft(HSSFCellStyle.BORDER_THIN);
 
@@ -323,6 +326,16 @@ public class ExcelExportUtil {
             if (lectureSchedule.getHour() != null) {
                 if (!listTimes.contains(lectureSchedule.getHour().trim())) {
                     listTimes.add(lectureSchedule.getHour().trim());
+                }
+            }
+        }
+
+        for (int i = 0; i < listTimes.size() - 1; i++) {
+            for (int j = i + 1; j < listTimes.size(); j++) {
+                if (StringUtils.compareTime(listTimes.get(i), listTimes.get(j)) < 0) {
+                    String tmp = listTimes.get(i);
+                    listTimes.set(i, listTimes.get(j));
+                    listTimes.set(j, tmp);
                 }
             }
         }
