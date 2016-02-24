@@ -30,4 +30,22 @@ public interface Constants {
         public static final int START_ROW = 1;
     }
 
+    public interface BUSY_SCHEDULE {
+
+        public interface COLUMN {
+
+            public static final int MONDAY_COLUMN = 1;
+            public static final int SUNDAY_COLUMN = 8;
+        }
+
+        public interface ROW {
+
+            public static final int START_ROW = 6;
+        }
+        
+        public interface COLOR{
+            public static final int NO_FILL = 64;
+        }
+    }
+
 }

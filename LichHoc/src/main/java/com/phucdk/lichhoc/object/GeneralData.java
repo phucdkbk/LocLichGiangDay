@@ -19,6 +19,9 @@ public class GeneralData {
     private List<LectureSchedule> listLectureSchedules;
     private Date startDateOfWeek;
 
+    private List<Teacher> listBusyTeachers;
+    private List<BusySchedule> listBusySchedules;
+
     public List<Teacher> getListTeachers() {
         return listTeachers;
     }
@@ -38,6 +41,8 @@ public class GeneralData {
     public GeneralData() {
         this.listTeachers = new ArrayList<>();
         this.listLectureSchedules = new ArrayList<>();
+        this.listBusyTeachers = new ArrayList<>();
+        this.listBusySchedules = new ArrayList<>();
     }
 
     public Date getStartDateOfWeek() {
@@ -46,5 +51,21 @@ public class GeneralData {
 
     public void setStartDateOfWeek(Date startDateOfWeek) {
         this.startDateOfWeek = startDateOfWeek;
-    }        
+    }
+
+    public List<Teacher> getListBusyTeachers() {
+        return listBusyTeachers;
+    }
+
+    public void setListBusyTeachers(List<Teacher> listBusyTeachers) {
+        this.listBusyTeachers = listBusyTeachers;
+    }
+
+    public List<BusySchedule> getListBusySchedules() {
+        return listBusySchedules;
+    }
+
+    public void setListBusySchedules(List<BusySchedule> listBusySchedules) {
+        this.listBusySchedules = listBusySchedules;
+    }            
 }

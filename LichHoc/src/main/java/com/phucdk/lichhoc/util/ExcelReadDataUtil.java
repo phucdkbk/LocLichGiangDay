@@ -5,6 +5,7 @@
  */
 package com.phucdk.lichhoc.util;
 
+import com.phucdk.lichhoc.object.BusySchedule;
 import com.phucdk.lichhoc.object.GeneralData;
 import com.phucdk.lichhoc.object.LectureSchedule;
 import com.phucdk.lichhoc.object.SchoolClass;
@@ -12,23 +13,15 @@ import com.phucdk.lichhoc.object.Teacher;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -37,31 +30,22 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author Administrator
  */
-public class ExcelReadDataUtil {    
+public class ExcelReadDataUtil {
 
-    public static GeneralData readData(String fileName) throws IOException {
+    public static GeneralData readData(String fileName, String busySchedule) throws IOException {
         GeneralData generalData = new GeneralData();
+        //getScheduleData(fileName, generalData);
+        getBusyScheduleData(busySchedule, generalData);
+        return generalData;
+    }
+
+    private static void getScheduleData(String fileName, GeneralData generalData) throws FileNotFoundException, IOException {
         File myFile = new File(fileName);
         FileInputStream fis = new FileInputStream(myFile);
         // Finds the workbook instance for XLSX file
         XSSFWorkbook myWorkBook = new XSSFWorkbook(fis);
         // Return first sheet from the XLSX workbook
         XSSFSheet mySheet = myWorkBook.getSheetAt(0);
-        // Get iterator to all the rows in current sheet
-        Iterator<Row> rowIterator = mySheet.iterator();
-        // Traversing over each row of XLSX file
-        int numberOfRow = mySheet.getPhysicalNumberOfRows();
-        System.out.println("numberOfRow: " + numberOfRow);
-
-        List<MergeRegion> listMergedRegion = new ArrayList<>();
-        for (int i = 0; i < mySheet.getNumMergedRegions(); i++) {
-            CellRangeAddress mergedRegion = mySheet.getMergedRegion(i);
-            // Just add it to the sheet on the new workbook.
-            //newSheet.addMergedRegion(mergedRegion);
-            listMergedRegion.add(new MergeRegion(mergedRegion));
-            //System.out.println(mergedRegion.formatAsString());
-        }
-
         int startRow = Constants.ROW.START_ROW;
         Date startDateOfWeek = getCell(1, Constants.COLUMN.MONDAY_COLUMN, mySheet).getDateCellValue();
         generalData.setStartDateOfWeek(startDateOfWeek);
@@ -71,7 +55,7 @@ public class ExcelReadDataUtil {
                 for (int i = Constants.COLUMN.MONDAY_COLUMN; i <= Constants.COLUMN.SUNDAY_COLUMN; i++) {
                     if (!isEmptyCell(classRowPair.getFromRow(), i, mySheet)) {
                         String teacherName = getStringCellValue(classRowPair.getFromRow(), i, mySheet);
-                        Teacher teacher = getTeacher(teacherName, generalData);
+                        Teacher teacher = getTeacher(teacherName, generalData.getListTeachers());
                         LectureSchedule lectureSchedule = new LectureSchedule();
                         lectureSchedule.setTeacher(teacher);
                         String campus = getStringCellValue(classRowPair.getFromRow(), Constants.COLUMN.CAMPUS_COLUMN, mySheet);
@@ -96,19 +80,55 @@ public class ExcelReadDataUtil {
                 }
                 startRow = classRowPair.getToRow();
             }
-
         }
-        return generalData;
     }
 
-    private static Teacher getTeacher(String teacherName, GeneralData generalData) {
+    private static void getBusyScheduleData(String fileName, GeneralData generalData) throws FileNotFoundException, IOException {
+        File myFile = new File(fileName);
+        FileInputStream fis = new FileInputStream(myFile);
+        // Finds the workbook instance for XLSX file
+        XSSFWorkbook myWorkBook = new XSSFWorkbook(fis);
+
+        for (int i = 0; i < myWorkBook.getNumberOfSheets(); i++) {
+            //for (int i = 0; i < 1; i++) {
+            XSSFSheet mySheet = myWorkBook.getSheetAt(i);
+            String teacherName = mySheet.getSheetName().trim();
+            Teacher teacher = getTeacher(teacherName, generalData.getListBusyTeachers());
+            int numberOfRows = mySheet.getPhysicalNumberOfRows();
+            Date startDateOfWeek = getCell(5, Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN, mySheet).getDateCellValue();
+            for (int j = Constants.BUSY_SCHEDULE.ROW.START_ROW; j <= numberOfRows; j++) {
+                XSSFRow row;
+                row = mySheet.getRow(j);
+                if (row != null) {
+                    XSSFCell row_0 = row.getCell(0);
+                    if (row_0 != null && !StringUtils.isEmpty(row_0.getStringCellValue())) {
+                        for (int k = Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN; k <= Constants.BUSY_SCHEDULE.COLUMN.SUNDAY_COLUMN; k++) {
+                            XSSFCell cell_dayOfWeek = row.getCell(k);
+                            XSSFCellStyle cellStyle = cell_dayOfWeek.getCellStyle();
+                            System.out.println(cellStyle.getFillBackgroundColor());
+                            System.out.println(cellStyle.getFillPattern());
+                            if (cellStyle.getFillPattern() != (int) HSSFCellStyle.NO_FILL) {
+                                BusySchedule busySchedule = new BusySchedule();
+                                busySchedule.setTeacher(teacher);
+                                busySchedule.setHour(row_0.getStringCellValue().trim());
+                                busySchedule.setDate(getDateOfColumnBusy(startDateOfWeek, k));
+                                generalData.getListBusySchedules().add(busySchedule);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static Teacher getTeacher(String teacherName, List<Teacher> listTeachers) {
         Teacher teacher = null;
-        if (!existTeacher(teacherName, generalData)) {
+        if (!existTeacher(teacherName, listTeachers)) {
             teacher = new Teacher();
             teacher.setFullName(teacherName);
-            generalData.getListTeachers().add(teacher);
+            listTeachers.add(teacher);
         } else {
-            teacher = getTeacherByName(teacherName, generalData);
+            teacher = getTeacherByName(teacherName, listTeachers);
         }
         return teacher;
     }
@@ -167,15 +187,15 @@ public class ExcelReadDataUtil {
         return isEmpty;
     }
 
-    private static boolean existTeacher(String teacherName, GeneralData generalData) {
-        Teacher teacher = getTeacherByName(teacherName, generalData);
+    private static boolean existTeacher(String teacherName, List<Teacher> listTeachers) {
+        Teacher teacher = getTeacherByName(teacherName, listTeachers);
         return teacher != null;
     }
 
-    private static Teacher getTeacherByName(String teacherName, GeneralData generalData) {
-        for (int i = 0; i < generalData.getListTeachers().size(); i++) {
-            if (teacherName.equals(generalData.getListTeachers().get(i).getFullName())) {
-                return generalData.getListTeachers().get(i);
+    private static Teacher getTeacherByName(String teacherName, List<Teacher> listTeachers) {
+        for (int i = 0; i < listTeachers.size(); i++) {
+            if (teacherName.equals(listTeachers.get(i).getFullName())) {
+                return listTeachers.get(i);
             }
         }
         return null;
@@ -185,6 +205,13 @@ public class ExcelReadDataUtil {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDateOfWeek);
         cal.add(Calendar.DATE, dateColumn - Constants.COLUMN.MONDAY_COLUMN);
+        return cal.getTime();
+    }
+
+    private static Date getDateOfColumnBusy(Date startDateOfWeek, int dateColumn) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(startDateOfWeek);
+        cal.add(Calendar.DATE, dateColumn - Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN);
         return cal.getTime();
     }
 

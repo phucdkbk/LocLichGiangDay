@@ -29,6 +29,8 @@ public class ExtractInvidualSchedule extends JFrame {
 
     private final JTextField inputLabel = new JTextField();
     private final JTextField inputFile = new JTextField();
+    private final JTextField inputBusyLabel = new JTextField();
+    private final JTextField inputBusyFile = new JTextField();
     private final JTextField outputLabel = new JTextField();
     private final JTextField outputFolder = new JTextField();
     private final JTextField result = new JTextField();
@@ -44,12 +46,19 @@ public class ExtractInvidualSchedule extends JFrame {
         cp.add(p, BorderLayout.SOUTH);
 
         p = new JPanel();
-        p.setLayout(new GridLayout(7, 1));
+        p.setLayout(new GridLayout(9, 1));
         inputLabel.setEditable(false);
         inputLabel.setText("Input file:");
         p.add(inputLabel);
         inputFile.setEditable(false);
         p.add(inputFile);
+        
+        inputBusyLabel.setEditable(false);
+        inputBusyLabel.setText("Input file:");
+        p.add(inputBusyLabel);
+        inputBusyFile.setEditable(false);
+        p.add(inputBusyFile);
+        
         open.addActionListener(new OpenL());
         p.add(open);
         outputLabel.setEditable(false);
@@ -85,7 +94,7 @@ public class ExtractInvidualSchedule extends JFrame {
         public void actionPerformed(ActionEvent e) {
             GeneralData generalData;
             try {
-                generalData = ExcelReadDataUtil.readData(inputFile.getText());
+                generalData = ExcelReadDataUtil.readData(inputFile.getText(), inputBusyFile.getText());
                 ExcelExportUtil.exportFile(generalData, outputFolder.getText());
                 result.setText("Filter Done!");
             } catch (IOException ex) {
