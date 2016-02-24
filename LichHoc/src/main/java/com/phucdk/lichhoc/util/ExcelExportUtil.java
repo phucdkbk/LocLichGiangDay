@@ -24,6 +24,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.FontUnderline;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.PaperSize;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -35,7 +36,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author Administrator
  */
-public class ExcelExportUtil {
+public class ExcelExportUtil {    
 
     public static void exportFile(GeneralData generalData, String outputFolder) throws FileNotFoundException, IOException, Exception {
         outputFolder = outputFolder + "\\" + DateTimeUtils.convertDateToString(new Date(), "yyyyMMdd_HHmmss");
@@ -52,6 +53,8 @@ public class ExcelExportUtil {
             XSSFWorkbook wb = new XSSFWorkbook();
             CreationHelper createHelper = wb.getCreationHelper();
             XSSFSheet sheet = wb.createSheet(teacher.getFullName());
+            sheet.getPrintSetup().setLandscape(true);
+            sheet.getPrintSetup().setPaperSize(PaperSize.A4_PAPER); 
             sheet.setDisplayGridlines(false);
             sheet.setColumnWidth(0, 1500);
             sheet.setColumnWidth(1, 4200);

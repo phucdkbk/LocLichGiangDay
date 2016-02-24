@@ -106,8 +106,8 @@ public class ExcelReadDataUtil {
                             XSSFCell cell_dayOfWeek = row.getCell(k);
                             if (cell_dayOfWeek != null) {
                                 XSSFCellStyle cellStyle = cell_dayOfWeek.getCellStyle();
-                                System.out.println(cellStyle.getFillBackgroundColor());
-                                System.out.println(cellStyle.getFillPattern());
+//                                System.out.println(cellStyle.getFillBackgroundColor());
+//                                System.out.println(cellStyle.getFillPattern());
                                 if (cellStyle.getFillPattern() != (int) HSSFCellStyle.NO_FILL) {
                                     BusySchedule busySchedule = new BusySchedule();
                                     busySchedule.setTeacher(teacher);
