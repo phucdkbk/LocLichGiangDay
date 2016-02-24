@@ -36,12 +36,13 @@ public class ExtractInvidualSchedule extends JFrame {
     private final JTextField result = new JTextField();
 
     private final JButton open = new JButton("Open general file");
-    private final JButton save = new JButton("Process filter");
+    private final JButton openBusyFile = new JButton("Open busy file");
+    private final JButton processFilter = new JButton("Process filter");
 
     public ExtractInvidualSchedule() {
         JPanel p = new JPanel();
-        save.addActionListener(new ProcessFilter());
-        p.add(save);
+        processFilter.addActionListener(new ProcessFilter());
+        p.add(processFilter);
         Container cp = getContentPane();
         cp.add(p, BorderLayout.SOUTH);
 
@@ -51,13 +52,7 @@ public class ExtractInvidualSchedule extends JFrame {
         inputLabel.setText("Input file:");
         p.add(inputLabel);
         inputFile.setEditable(false);
-        p.add(inputFile);
-        
-        inputBusyLabel.setEditable(false);
-        inputBusyLabel.setText("Input file:");
-        p.add(inputBusyLabel);
-        inputBusyFile.setEditable(false);
-        p.add(inputBusyFile);
+        p.add(inputFile);                
         
         open.addActionListener(new OpenL());
         p.add(open);
@@ -67,6 +62,15 @@ public class ExtractInvidualSchedule extends JFrame {
         outputFolder.setEditable(true);
         outputFolder.setText("D:\\Output");
         p.add(outputFolder);
+        
+        inputBusyLabel.setEditable(false);
+        inputBusyLabel.setText("Busy file:");
+        p.add(inputBusyLabel);
+        inputBusyFile.setEditable(false);
+        p.add(inputBusyFile);
+        openBusyFile.addActionListener(new OpenBusyFile());
+        p.add(openBusyFile);
+        
         result.setEditable(false);
         p.add(result);
 
@@ -81,6 +85,21 @@ public class ExtractInvidualSchedule extends JFrame {
             int rVal = c.showOpenDialog(ExtractInvidualSchedule.this);
             if (rVal == JFileChooser.APPROVE_OPTION) {
                 inputFile.setText(c.getCurrentDirectory().toString() + "\\" + c.getSelectedFile().getName());
+            }
+            if (rVal == JFileChooser.CANCEL_OPTION) {
+                inputFile.setText("");
+            }
+        }
+    }
+    
+    class OpenBusyFile implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser c = new JFileChooser();            
+            int rVal = c.showOpenDialog(ExtractInvidualSchedule.this);
+            if (rVal == JFileChooser.APPROVE_OPTION) {
+                inputBusyFile.setText(c.getCurrentDirectory().toString() + "\\" + c.getSelectedFile().getName());
             }
             if (rVal == JFileChooser.CANCEL_OPTION) {
                 inputFile.setText("");

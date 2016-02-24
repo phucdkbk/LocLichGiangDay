@@ -34,7 +34,7 @@ public class ExcelReadDataUtil {
 
     public static GeneralData readData(String fileName, String busySchedule) throws IOException {
         GeneralData generalData = new GeneralData();
-        //getScheduleData(fileName, generalData);
+        getScheduleData(fileName, generalData);
         getBusyScheduleData(busySchedule, generalData);
         return generalData;
     }
@@ -104,15 +104,17 @@ public class ExcelReadDataUtil {
                     if (row_0 != null && !StringUtils.isEmpty(row_0.getStringCellValue())) {
                         for (int k = Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN; k <= Constants.BUSY_SCHEDULE.COLUMN.SUNDAY_COLUMN; k++) {
                             XSSFCell cell_dayOfWeek = row.getCell(k);
-                            XSSFCellStyle cellStyle = cell_dayOfWeek.getCellStyle();
-                            System.out.println(cellStyle.getFillBackgroundColor());
-                            System.out.println(cellStyle.getFillPattern());
-                            if (cellStyle.getFillPattern() != (int) HSSFCellStyle.NO_FILL) {
-                                BusySchedule busySchedule = new BusySchedule();
-                                busySchedule.setTeacher(teacher);
-                                busySchedule.setHour(row_0.getStringCellValue().trim());
-                                busySchedule.setDate(getDateOfColumnBusy(startDateOfWeek, k));
-                                generalData.getListBusySchedules().add(busySchedule);
+                            if (cell_dayOfWeek != null) {
+                                XSSFCellStyle cellStyle = cell_dayOfWeek.getCellStyle();
+                                System.out.println(cellStyle.getFillBackgroundColor());
+                                System.out.println(cellStyle.getFillPattern());
+                                if (cellStyle.getFillPattern() != (int) HSSFCellStyle.NO_FILL) {
+                                    BusySchedule busySchedule = new BusySchedule();
+                                    busySchedule.setTeacher(teacher);
+                                    busySchedule.setHour(row_0.getStringCellValue().trim());
+                                    busySchedule.setDate(getDateOfColumnBusy(startDateOfWeek, k));
+                                    generalData.getListBusySchedules().add(busySchedule);
+                                }
                             }
                         }
                     }

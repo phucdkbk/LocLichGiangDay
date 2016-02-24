@@ -5,6 +5,7 @@
  */
 package com.phucdk.lichhoc.util;
 
+import com.phucdk.lichhoc.object.BusySchedule;
 import com.phucdk.lichhoc.object.GeneralData;
 import com.phucdk.lichhoc.object.LectureSchedule;
 import com.phucdk.lichhoc.object.Teacher;
@@ -18,16 +19,16 @@ import java.util.Date;
 import java.util.List;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.FontUnderline;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
@@ -41,14 +42,16 @@ public class ExcelExportUtil {
         for (int i = 0; i < generalData.getListTeachers().size(); i++) {
             //for (int i = 0; i < 1; i++) {
             Teacher teacher = generalData.getListTeachers().get(i);
-            
-            if(teacher.getFullName().toLowerCase().equals("mike rush")){
-                int debug =1;
+
+            if (teacher.getFullName().toLowerCase().equals("carmel")) {
+                int debug = 1;
+            } else {
+                //continue;
             }
 
             XSSFWorkbook wb = new XSSFWorkbook();
             CreationHelper createHelper = wb.getCreationHelper();
-            Sheet sheet = wb.createSheet(teacher.getFullName());
+            XSSFSheet sheet = wb.createSheet(teacher.getFullName());
             sheet.setDisplayGridlines(false);
             sheet.setColumnWidth(0, 1500);
             sheet.setColumnWidth(1, 4200);
@@ -70,20 +73,20 @@ public class ExcelExportUtil {
             font.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
             cellStyleBold.setFont(font);//set it to bold
 
-            Row row1 = sheet.createRow((short) 1);
-            Cell cell_10 = row1.createCell(0);
+            XSSFRow row1 = sheet.createRow((short) 1);
+            XSSFCell cell_10 = row1.createCell(0);
             cell_10.setCellStyle(cellStyleBold);
             cell_10.setCellValue("Teacher:");
 
-            Cell cell_11 = row1.createCell(1);
+            XSSFCell cell_11 = row1.createCell(1);
             cell_11.setCellStyle(cellStyleBold);
             cell_11.setCellValue(teacher.getFullName());
             //-----------------------  row 2 --------------------
-            Row row2 = sheet.createRow((short) 2);
-            Cell cell_20 = row2.createCell(0);
+            XSSFRow row2 = sheet.createRow((short) 2);
+            XSSFCell cell_20 = row2.createCell(0);
             cell_20.setCellStyle(cellStyleBold);
             cell_20.setCellValue("Tel:");
-            Cell cell_23 = row2.createCell(3);
+            XSSFCell cell_23 = row2.createCell(3);
             cell_23.setCellStyle(cellStyleBold);
             cell_23.setCellValue("Email");
             //-----------------------  row 3 --------------------
@@ -93,8 +96,8 @@ public class ExcelExportUtil {
             fontTitle.setFontHeightInPoints((short) 14);
             fontTitle.setUnderline(FontUnderline.SINGLE);
             cellStyleTitle.setFont(fontTitle);//set it to bold
-            Row row3 = sheet.createRow((short) 3);
-            Cell cell_30 = row3.createCell(0);
+            XSSFRow row3 = sheet.createRow((short) 3);
+            XSSFCell cell_30 = row3.createCell(0);
             cell_30.setCellStyle(cellStyleTitle);
             cell_30.setCellValue(getWeekTitle(generalData));
             //-----------------------  row 4 --------------------
@@ -115,29 +118,29 @@ public class ExcelExportUtil {
             cellStyleCell_40.setBorderLeft(HSSFCellStyle.BORDER_THIN);
             cellStyleCell_40.setAlignment(HorizontalAlignment.CENTER);
 
-            Row row4 = sheet.createRow((short) 4);
-            Cell cell_40 = row4.createCell(0);
+            XSSFRow row4 = sheet.createRow((short) 4);
+            XSSFCell cell_40 = row4.createCell(0);
             cell_40.setCellStyle(cellStyleCell_40);
             cell_40.setCellValue("Time");
-            Cell cell_41 = row4.createCell(1);
+            XSSFCell cell_41 = row4.createCell(1);
             cell_41.setCellStyle(cellStyleDateLabel);
             cell_41.setCellValue("Mon");
-            Cell cell_42 = row4.createCell(2);
+            XSSFCell cell_42 = row4.createCell(2);
             cell_42.setCellStyle(cellStyleDateLabel);
             cell_42.setCellValue("Tue");
-            Cell cell_43 = row4.createCell(3);
+            XSSFCell cell_43 = row4.createCell(3);
             cell_43.setCellStyle(cellStyleDateLabel);
             cell_43.setCellValue("Wed");
-            Cell cell_44 = row4.createCell(4);
+            XSSFCell cell_44 = row4.createCell(4);
             cell_44.setCellStyle(cellStyleDateLabel);
             cell_44.setCellValue("Thu");
-            Cell cell_45 = row4.createCell(5);
+            XSSFCell cell_45 = row4.createCell(5);
             cell_45.setCellStyle(cellStyleDateLabel);
             cell_45.setCellValue("Fri");
-            Cell cell_46 = row4.createCell(6);
+            XSSFCell cell_46 = row4.createCell(6);
             cell_46.setCellStyle(cellStyleDateLabel);
             cell_46.setCellValue("Sat");
-            Cell cell_47 = row4.createCell(7);
+            XSSFCell cell_47 = row4.createCell(7);
             cell_47.setCellStyle(cellStyleDateLabel);
             cell_47.setCellValue("Sun");
             //-----------------------  row 5 --------------------
@@ -159,33 +162,34 @@ public class ExcelExportUtil {
             cellStyleCell_50.setBorderRight(HSSFCellStyle.BORDER_THIN);
             cellStyleCell_50.setBorderLeft(HSSFCellStyle.BORDER_THIN);
 
-            Row row5 = sheet.createRow((short) 5);
-            Cell cell_50 = row5.createCell(0);
+            XSSFRow row5 = sheet.createRow((short) 5);
+            XSSFCell cell_50 = row5.createCell(0);
             cell_50.setCellStyle(cellStyleCell_50);
-            Cell cell_51 = row5.createCell(1);
+            XSSFCell cell_51 = row5.createCell(1);
             cell_51.setCellStyle(cellStyleDate);
             cell_51.setCellValue(generalData.getStartDateOfWeek());
-            Cell cell_52 = row5.createCell(2);
+            XSSFCell cell_52 = row5.createCell(2);
             cell_52.setCellStyle(cellStyleDate);
             cell_52.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 1));
-            Cell cell_53 = row5.createCell(3);
+            XSSFCell cell_53 = row5.createCell(3);
             cell_53.setCellStyle(cellStyleDate);
             cell_53.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 2));
-            Cell cell_54 = row5.createCell(4);
+            XSSFCell cell_54 = row5.createCell(4);
             cell_54.setCellStyle(cellStyleDate);
             cell_54.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 3));
-            Cell cell_55 = row5.createCell(5);
+            XSSFCell cell_55 = row5.createCell(5);
             cell_55.setCellStyle(cellStyleDate);
             cell_55.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 4));
-            Cell cell_56 = row5.createCell(6);
+            XSSFCell cell_56 = row5.createCell(6);
             cell_56.setCellStyle(cellStyleDate);
             cell_56.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 5));
-            Cell cell_57 = row5.createCell(7);
+            XSSFCell cell_57 = row5.createCell(7);
             cell_57.setCellStyle(cellStyleDate);
             cell_57.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 6));
             //---------------------------------------------------
             List<LectureSchedule> listLectureSchedules = getListLectureScheduleByTeacher(generalData, teacher);
             List<String> listTimes = getListTimes(listLectureSchedules);
+            List<BusySchedule> listBusySchedules = getListBusyScheduleByTeacher(generalData, teacher);
 
             //--------------- row style for each time----------
             //--------------- style row 0 ---------------------
@@ -221,16 +225,16 @@ public class ExcelExportUtil {
 
             for (int j = 0; j < listTimes.size(); j++) {
                 String time = listTimes.get(j);
-                Row loopRow_0 = sheet.createRow((short) (6 + j * 4));
-                Row loopRow_1 = sheet.createRow((short) (6 + j * 4 + 1));
-                Row loopRow_2 = sheet.createRow((short) (6 + j * 4 + 2));
-                Row loopRow_3 = sheet.createRow((short) (6 + j * 4 + 3));
-                Cell loopRow_01 = loopRow_0.createCell(0);
+                XSSFRow loopRow_0 = sheet.createRow((short) (6 + j * 4));
+                XSSFRow loopRow_1 = sheet.createRow((short) (6 + j * 4 + 1));
+                XSSFRow loopRow_2 = sheet.createRow((short) (6 + j * 4 + 2));
+                XSSFRow loopRow_3 = sheet.createRow((short) (6 + j * 4 + 3));
+                XSSFCell loopRow_01 = loopRow_0.createCell(0);
                 loopRow_01.setCellValue(time);
 
                 List<LectureSchedule> listLectureSchedulesByTime = getListLectureScheduleByTime(listLectureSchedules, time);
-                for (int k = 0; k < listLectureSchedulesByTime.size(); k++) {
-                    LectureSchedule lectureSchedule = listLectureSchedulesByTime.get(k);
+                List<BusySchedule> listBusySchedulesByTime = getListBusyScheduleByTime(listBusySchedules, time);
+                for (LectureSchedule lectureSchedule : listLectureSchedulesByTime) {
                     switch (getDayOfWeek(lectureSchedule)) {
                         case Calendar.MONDAY:
                             setLectureValue(loopRow_0, lectureSchedule, loopRow_1, loopRow_3, 1);
@@ -257,19 +261,19 @@ public class ExcelExportUtil {
                 }
 
                 for (int k = 0; k <= Constants.COLUMN.INVIDUAL.SUNDAY_COLUMN; k++) {
-                    Cell loopCell_0 = loopRow_0.getCell(k);
+                    XSSFCell loopCell_0 = loopRow_0.getCell(k);
                     if (loopCell_0 == null) {
                         loopCell_0 = loopRow_0.createCell(k);
                     }
-                    Cell loopCell_1 = loopRow_1.getCell(k);
+                    XSSFCell loopCell_1 = loopRow_1.getCell(k);
                     if (loopCell_1 == null) {
                         loopCell_1 = loopRow_1.createCell(k);
                     }
-                    Cell loopCell_2 = loopRow_2.getCell(k);
+                    XSSFCell loopCell_2 = loopRow_2.getCell(k);
                     if (loopCell_2 == null) {
                         loopCell_2 = loopRow_2.createCell(k);
                     }
-                    Cell loopCell_3 = loopRow_3.getCell(k);
+                    XSSFCell loopCell_3 = loopRow_3.getCell(k);
                     if (loopCell_3 == null) {
                         loopCell_3 = loopRow_3.createCell(k);
                     }
@@ -277,6 +281,32 @@ public class ExcelExportUtil {
                     loopCell_1.setCellStyle(cellStyleRow1);
                     loopCell_2.setCellStyle(cellStyleRow1);
                     loopCell_3.setCellStyle(cellStyleRow3);
+                }
+
+                for (BusySchedule busySchedule : listBusySchedulesByTime) {
+                    switch (DateTimeUtils.getDayOfWeek(busySchedule.getDate())) {
+                        case Calendar.MONDAY:
+                            fillBusy(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 1);
+                            break;
+                        case Calendar.TUESDAY:
+                            fillBusy(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 2);
+                            break;
+                        case Calendar.WEDNESDAY:
+                            fillBusy(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 3);
+                            break;
+                        case Calendar.THURSDAY:
+                            fillBusy(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 4);
+                            break;
+                        case Calendar.FRIDAY:
+                            fillBusy(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 5);
+                            break;
+                        case Calendar.SATURDAY:
+                            fillBusy(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 6);
+                            break;
+                        case Calendar.SUNDAY:
+                            fillBusy(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 7);
+                            break;
+                    }
                 }
             }
 
@@ -290,12 +320,12 @@ public class ExcelExportUtil {
         }
     }
 
-    private static void setLectureValue(Row loopRow_0, LectureSchedule lectureSchedule, Row loopRow_1, Row loopRow_3, int column) {
-        Cell loopRow_0_monday = loopRow_0.createCell(column);
+    private static void setLectureValue(XSSFRow loopRow_0, LectureSchedule lectureSchedule, XSSFRow loopRow_1, XSSFRow loopRow_3, int column) {
+        XSSFCell loopRow_0_monday = loopRow_0.createCell(column);
         loopRow_0_monday.setCellValue(lectureSchedule.getSchoolClass().getSchoolClassName());
-        Cell loopRow_1_monday = loopRow_1.createCell(column);
+        XSSFCell loopRow_1_monday = loopRow_1.createCell(column);
         loopRow_1_monday.setCellValue(lectureSchedule.getLession());
-        Cell loopRow_3_monday = loopRow_3.createCell(column);
+        XSSFCell loopRow_3_monday = loopRow_3.createCell(column);
         loopRow_3_monday.setCellValue(lectureSchedule.getCampus());
     }
 
@@ -318,6 +348,17 @@ public class ExcelExportUtil {
             }
         }
         return listLectureSchedules;
+    }
+
+    private static List<BusySchedule> getListBusyScheduleByTeacher(GeneralData generalData, Teacher teacher) {
+        List<BusySchedule> listBusySchedules = new ArrayList<>();
+        for (int i = 0; i < generalData.getListBusySchedules().size(); i++) {
+            BusySchedule busySchedule = generalData.getListBusySchedules().get(i);
+            if (busySchedule.getTeacher().equals(teacher)) {
+                listBusySchedules.add(busySchedule);
+            }
+        }
+        return listBusySchedules;
     }
 
     private static List<String> getListTimes(List<LectureSchedule> listLectureSchedules) {
@@ -352,8 +393,56 @@ public class ExcelExportUtil {
         return listLectureSchedulesByTime;
     }
 
+    private static List<BusySchedule> getListBusyScheduleByTime(List<BusySchedule> listBusySchedules, String time) {
+        List<BusySchedule> listBusySchedulesByTime = new ArrayList<>();
+        for (BusySchedule lectureSchedule : listBusySchedules) {
+            if (lectureSchedule.getHour() != null && lectureSchedule.getHour().equals(time)) {
+                listBusySchedulesByTime.add(lectureSchedule);
+            }
+        }
+        return listBusySchedulesByTime;
+    }
+
     private static int getDayOfWeek(LectureSchedule lectureSchedule) {
         return DateTimeUtils.getDayOfWeek(lectureSchedule.getDate());
+    }
+
+    private static void fillBusy(XSSFRow loopRow_0, XSSFRow loopRow_1, XSSFRow loopRow_2, XSSFRow loopRow_3, int k) {
+        XSSFCell loopCell_0 = loopRow_0.getCell(k);
+        if (loopCell_0 == null) {
+            loopCell_0 = loopRow_0.createCell(k);
+        }
+        XSSFCell loopCell_1 = loopRow_1.getCell(k);
+        if (loopCell_1 == null) {
+            loopCell_1 = loopRow_1.createCell(k);
+        }
+        XSSFCell loopCell_2 = loopRow_2.getCell(k);
+        if (loopCell_2 == null) {
+            loopCell_2 = loopRow_2.createCell(k);
+        }
+        XSSFCell loopCell_3 = loopRow_3.getCell(k);
+        if (loopCell_3 == null) {
+            loopCell_3 = loopRow_3.createCell(k);
+        }
+        XSSFCellStyle cellStyleRow0 = loopCell_0.getCellStyle();
+        XSSFCellStyle cellStyleRow1 = loopCell_1.getCellStyle();
+        XSSFCellStyle cellStyleRow3 = loopCell_3.getCellStyle();
+
+        XSSFCellStyle cellStyleRow0_fillBusy = (XSSFCellStyle) cellStyleRow0.clone();
+        XSSFCellStyle cellStyleRow1_fillBusy = (XSSFCellStyle) cellStyleRow1.clone();
+        XSSFCellStyle cellStyleRow3_fillBusy = (XSSFCellStyle) cellStyleRow3.clone();
+
+        cellStyleRow0_fillBusy.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        cellStyleRow0_fillBusy.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        cellStyleRow1_fillBusy.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        cellStyleRow1_fillBusy.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        cellStyleRow3_fillBusy.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        cellStyleRow3_fillBusy.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+
+        loopCell_0.setCellStyle(cellStyleRow0_fillBusy);
+        loopCell_1.setCellStyle(cellStyleRow1_fillBusy);
+        loopCell_2.setCellStyle(cellStyleRow1_fillBusy);
+        loopCell_3.setCellStyle(cellStyleRow3_fillBusy);
     }
 
 }
