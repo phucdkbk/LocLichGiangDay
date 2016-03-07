@@ -40,7 +40,8 @@ public interface Constants {
 
         public interface ROW {
 
-            public static final int START_ROW = 6;
+            public static final int START_ROW_FRANCE = 6;
+            public static final int START_ROW_VI = 5;
         }
         
         public interface COLOR{

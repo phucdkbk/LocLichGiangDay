@@ -62,11 +62,13 @@ public class StringUtils {
             if ("pm".equals(splitTime1_hour[splitTime1_hour.length - 1].trim())
                     && "am".equals(splitTime2_hour[splitTime2_hour.length - 1].trim())) {
                 compare = -1;
-            } else {
-                if (hourTime1 > hourTime2) {
-                    compare = -1;
-                }
+            } else if ("am".equals(splitTime1_hour[splitTime1_hour.length - 1].trim())
+                    && "pm".equals(splitTime2_hour[splitTime2_hour.length - 1].trim())) {
+                compare = 1;
+            } else if (hourTime1 > hourTime2) {
+                compare = -1;
             }
+
         }
         return compare;
     }

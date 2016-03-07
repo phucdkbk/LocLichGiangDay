@@ -19,6 +19,7 @@ public class LectureSchedule {
     private Date date;
     private Teacher teacher;
     private String lession;
+    private boolean isConfict;
 
     public String getCampus() {
         return campus;
@@ -42,7 +43,7 @@ public class LectureSchedule {
 
     public void setSchoolClass(SchoolClass schoolClass) {
         this.schoolClass = schoolClass;
-    }    
+    }
 
     public Date getDate() {
         return date;
@@ -66,5 +67,13 @@ public class LectureSchedule {
 
     public void setLession(String lession) {
         this.lession = lession;
+    }
+
+    public boolean isIsConfict() {
+        return isConfict;
+    }
+
+    public void setIsConfict(boolean isConfict) {
+        this.isConfict = isConfict;
     }
 }

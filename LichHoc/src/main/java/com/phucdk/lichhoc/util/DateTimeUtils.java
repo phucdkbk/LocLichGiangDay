@@ -14,8 +14,7 @@ import java.util.Date;
  * @author Administrator
  */
 public class DateTimeUtils {
-    
-    
+
     public static String convertDateToString(Date date, String format) throws Exception {
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         try {
@@ -39,14 +38,31 @@ public class DateTimeUtils {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDateOfWeek);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+        cal.setFirstDayOfWeek(Calendar.MONDAY);
         return cal.getTime();
     }
-    
-    public static Date addDate(Date date, int increament){
+
+    public static Date addDate(Date date, int increament) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.add(Calendar.DATE, increament);
         return cal.getTime();
     }
-    
+
+    public static boolean equalDate(Date date1, Date date2) {
+        return getZeroTimeDate(date1).compareTo(getZeroTimeDate(date2)) == 0;
+    }
+
+    public static Date getZeroTimeDate(Date fecha) {
+        Date res = fecha;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(fecha);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        res = calendar.getTime();
+        return res;
+    }
+
 }

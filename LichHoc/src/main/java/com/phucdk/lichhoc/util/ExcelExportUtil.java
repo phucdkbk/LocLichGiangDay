@@ -16,7 +16,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -36,10 +38,16 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author Administrator
  */
-public class ExcelExportUtil {    
+public class ExcelExportUtil {
 
     public static void exportFile(GeneralData generalData, String outputFolder) throws FileNotFoundException, IOException, Exception {
         outputFolder = outputFolder + "\\" + DateTimeUtils.convertDateToString(new Date(), "yyyyMMdd_HHmmss");
+        Map<String, Short> mapCampusColor = new HashMap<>();
+        List<String> listCampus = getListCampue(generalData);
+        Short[] arrColors = {HSSFColor.RED.index, HSSFColor.BLUE.index, HSSFColor.YELLOW.index, HSSFColor.GREEN.index, HSSFColor.ORANGE.index};
+        for (int i = 0; i < listCampus.size(); i++) {
+            mapCampusColor.put(listCampus.get(i), arrColors[i]);
+        }
         for (int i = 0; i < generalData.getListTeachers().size(); i++) {
             //for (int i = 0; i < 1; i++) {
             Teacher teacher = generalData.getListTeachers().get(i);
@@ -54,7 +62,7 @@ public class ExcelExportUtil {
             CreationHelper createHelper = wb.getCreationHelper();
             XSSFSheet sheet = wb.createSheet(teacher.getFullName());
             sheet.getPrintSetup().setLandscape(true);
-            sheet.getPrintSetup().setPaperSize(PaperSize.A4_PAPER); 
+            sheet.getPrintSetup().setPaperSize(PaperSize.A4_PAPER);
             sheet.setDisplayGridlines(false);
             sheet.setColumnWidth(0, 1500);
             sheet.setColumnWidth(1, 4200);
@@ -226,6 +234,16 @@ public class ExcelExportUtil {
             cellStyleRow3.setFont(fontCampus);
             cellStyleRow3.setWrapText(true);
 
+            Map<String, XSSFCellStyle> mapCampusCellStyle = new HashMap<>();
+            for (int j = 0; j < listCampus.size(); j++) {
+                Font newFontCampus = wb.createFont();//Create font
+                newFontCampus.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
+                newFontCampus.setColor(mapCampusColor.get(listCampus.get(j)));
+                XSSFCellStyle cellStyleRow3new = (XSSFCellStyle) cellStyleRow3.clone();
+                cellStyleRow3new.setFont(newFontCampus);
+                mapCampusCellStyle.put(listCampus.get(j), cellStyleRow3new);
+            }
+
             for (int j = 0; j < listTimes.size(); j++) {
                 String time = listTimes.get(j);
                 XSSFRow loopRow_0 = sheet.createRow((short) (6 + j * 4));
@@ -283,7 +301,13 @@ public class ExcelExportUtil {
                     loopCell_0.setCellStyle(cellStyleRow0);
                     loopCell_1.setCellStyle(cellStyleRow1);
                     loopCell_2.setCellStyle(cellStyleRow1);
-                    loopCell_3.setCellStyle(cellStyleRow3);
+                    //loopCell_3.setCellStyle(cellStyleRow3);
+                    if (loopCell_3.getStringCellValue() != null && !"".equals(loopCell_3.getStringCellValue())) {
+                        loopCell_3.setCellStyle(mapCampusCellStyle.get(loopCell_3.getStringCellValue()));
+                    } else {
+                        loopCell_3.setCellStyle(cellStyleRow3);
+                    }
+                    
                 }
 
                 for (BusySchedule busySchedule : listBusySchedulesByTime) {
@@ -309,6 +333,34 @@ public class ExcelExportUtil {
                         case Calendar.SUNDAY:
                             fillBusy(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 7);
                             break;
+                    }
+                }
+
+                for (LectureSchedule lectureSchedule : listLectureSchedulesByTime) {
+                    if (lectureSchedule.isIsConfict()) {
+                        switch (DateTimeUtils.getDayOfWeek(lectureSchedule.getDate())) {
+                            case Calendar.MONDAY:
+                                fillConfict(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 1);
+                                break;
+                            case Calendar.TUESDAY:
+                                fillConfict(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 2);
+                                break;
+                            case Calendar.WEDNESDAY:
+                                fillConfict(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 3);
+                                break;
+                            case Calendar.THURSDAY:
+                                fillConfict(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 4);
+                                break;
+                            case Calendar.FRIDAY:
+                                fillConfict(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 5);
+                                break;
+                            case Calendar.SATURDAY:
+                                fillConfict(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 6);
+                                break;
+                            case Calendar.SUNDAY:
+                                fillConfict(loopRow_0, loopRow_1, loopRow_2, loopRow_3, 7);
+                                break;
+                        }
                     }
                 }
             }
@@ -446,6 +498,55 @@ public class ExcelExportUtil {
         loopCell_1.setCellStyle(cellStyleRow1_fillBusy);
         loopCell_2.setCellStyle(cellStyleRow1_fillBusy);
         loopCell_3.setCellStyle(cellStyleRow3_fillBusy);
+    }
+
+    private static void fillConfict(XSSFRow loopRow_0, XSSFRow loopRow_1, XSSFRow loopRow_2, XSSFRow loopRow_3, int k) {
+        XSSFCell loopCell_0 = loopRow_0.getCell(k);
+        if (loopCell_0 == null) {
+            loopCell_0 = loopRow_0.createCell(k);
+        }
+        XSSFCell loopCell_1 = loopRow_1.getCell(k);
+        if (loopCell_1 == null) {
+            loopCell_1 = loopRow_1.createCell(k);
+        }
+        XSSFCell loopCell_2 = loopRow_2.getCell(k);
+        if (loopCell_2 == null) {
+            loopCell_2 = loopRow_2.createCell(k);
+        }
+        XSSFCell loopCell_3 = loopRow_3.getCell(k);
+        if (loopCell_3 == null) {
+            loopCell_3 = loopRow_3.createCell(k);
+        }
+        XSSFCellStyle cellStyleRow0 = loopCell_0.getCellStyle();
+        XSSFCellStyle cellStyleRow1 = loopCell_1.getCellStyle();
+        XSSFCellStyle cellStyleRow3 = loopCell_3.getCellStyle();
+
+        XSSFCellStyle cellStyleRow0_fillBusy = (XSSFCellStyle) cellStyleRow0.clone();
+        XSSFCellStyle cellStyleRow1_fillBusy = (XSSFCellStyle) cellStyleRow1.clone();
+        XSSFCellStyle cellStyleRow3_fillBusy = (XSSFCellStyle) cellStyleRow3.clone();
+
+        cellStyleRow0_fillBusy.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        cellStyleRow0_fillBusy.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        cellStyleRow1_fillBusy.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        cellStyleRow1_fillBusy.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        cellStyleRow3_fillBusy.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        cellStyleRow3_fillBusy.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+
+        loopCell_0.setCellStyle(cellStyleRow0_fillBusy);
+        loopCell_1.setCellStyle(cellStyleRow1_fillBusy);
+        loopCell_2.setCellStyle(cellStyleRow1_fillBusy);
+        loopCell_3.setCellStyle(cellStyleRow3_fillBusy);
+    }
+
+    private static List<String> getListCampue(GeneralData generalData) {
+        List<String> listCampus = new ArrayList<>();
+        for (int i = 0; i < generalData.getListLectureSchedules().size(); i++) {
+            LectureSchedule lectureSchedule = generalData.getListLectureSchedules().get(i);
+            if (!listCampus.contains(lectureSchedule.getCampus())) {
+                listCampus.add(lectureSchedule.getCampus());
+            }
+        }
+        return listCampus;
     }
 
 }

@@ -55,6 +55,10 @@ public class ExcelReadDataUtil {
                 for (int i = Constants.COLUMN.MONDAY_COLUMN; i <= Constants.COLUMN.SUNDAY_COLUMN; i++) {
                     if (!isEmptyCell(classRowPair.getFromRow(), i, mySheet)) {
                         String teacherName = getStringCellValue(classRowPair.getFromRow(), i, mySheet);
+                        if ("Carmel".equals(teacherName)) {
+                        } else {
+                            //continue;
+                        }
                         Teacher teacher = getTeacher(teacherName, generalData.getListTeachers());
                         LectureSchedule lectureSchedule = new LectureSchedule();
                         lectureSchedule.setTeacher(teacher);
@@ -81,6 +85,7 @@ public class ExcelReadDataUtil {
                 startRow = classRowPair.getToRow();
             }
         }
+        markConfictLectureSchedule(generalData);
     }
 
     private static void getBusyScheduleData(String fileName, GeneralData generalData) throws FileNotFoundException, IOException {
@@ -93,10 +98,19 @@ public class ExcelReadDataUtil {
             //for (int i = 0; i < 1; i++) {
             XSSFSheet mySheet = myWorkBook.getSheetAt(i);
             String teacherName = mySheet.getSheetName().trim();
+            if ("Carmel".equals(teacherName)) {
+            } else {
+                //continue;
+            }
             Teacher teacher = getTeacher(teacherName, generalData.getListBusyTeachers());
             int numberOfRows = mySheet.getPhysicalNumberOfRows();
             Date startDateOfWeek = getCell(5, Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN, mySheet).getDateCellValue();
-            for (int j = Constants.BUSY_SCHEDULE.ROW.START_ROW; j <= numberOfRows; j++) {
+            int startRow = Constants.BUSY_SCHEDULE.ROW.START_ROW_FRANCE;
+            if (startDateOfWeek == null) {
+                startDateOfWeek = getCell(4, Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN, mySheet).getDateCellValue();
+                startRow = Constants.BUSY_SCHEDULE.ROW.START_ROW_VI;
+            }
+            for (int j = startRow; j <= numberOfRows; j++) {
                 XSSFRow row;
                 row = mySheet.getRow(j);
                 if (row != null) {
@@ -171,7 +185,7 @@ public class ExcelReadDataUtil {
         return CellUtil.getRow(row, sheet).getCell(column);
     }
 
-    private static String getStringCellValue(int row, int column, XSSFSheet sheet) {
+    public static String getStringCellValue(int row, int column, XSSFSheet sheet) {
         Cell cell = getCell(row, column, sheet);
         if (cell != null) {
             return cell.getStringCellValue();
@@ -215,6 +229,30 @@ public class ExcelReadDataUtil {
         cal.setTime(startDateOfWeek);
         cal.add(Calendar.DATE, dateColumn - Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN);
         return cal.getTime();
+    }
+
+    private static void markConfictLectureSchedule(GeneralData generalData) {
+        for (int i = 0; i < generalData.getListLectureSchedules().size() - 1; i++) {
+            for (int j = i + 1; j < generalData.getListLectureSchedules().size(); j++) {
+                if (confictLectureSchedule(generalData.getListLectureSchedules().get(i), generalData.getListLectureSchedules().get(j))) {
+                    generalData.getListLectureSchedules().get(i).setIsConfict(true);
+                    generalData.getListLectureSchedules().get(j).setIsConfict(true);
+                }
+            }
+        }
+    }
+
+    private static boolean confictLectureSchedule(LectureSchedule lectureSchedule1, LectureSchedule lectureSchedule2) {
+        if (!lectureSchedule1.getTeacher().equals(lectureSchedule2.getTeacher())) {
+            return false;
+        }
+        if (!DateTimeUtils.equalDate(lectureSchedule1.getDate(), lectureSchedule2.getDate())) {
+            return false;
+        }
+        if (!lectureSchedule1.getHour().equals(lectureSchedule2.getHour())) {
+            return false;
+        }
+        return true;
     }
 
 }
