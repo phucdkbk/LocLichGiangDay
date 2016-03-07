@@ -114,7 +114,7 @@ public class ExtractInvidualSchedule extends JFrame {
             GeneralData generalData;
             try {
                 generalData = ExcelReadDataUtil.readData(inputFile.getText(), inputBusyFile.getText());
-                ExcelExportUtil.exportFile(generalData, outputFolder.getText());
+                ExcelExportUtil.exportFile(generalData, "", outputFolder.getText());
                 result.setText("Filter Done!");
             } catch (IOException ex) {
                 Logger.getLogger(ExtractInvidualSchedule.class.getName()).log(Level.SEVERE, null, ex);

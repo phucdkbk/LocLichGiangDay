@@ -37,8 +37,9 @@ public class DateTimeUtils {
     public static Date getSundayOfWeek(Date startDateOfWeek) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDateOfWeek);
-        cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
         cal.setFirstDayOfWeek(Calendar.MONDAY);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        cal.add(Calendar.DATE, Calendar.SUNDAY - Calendar.MONDAY);
         return cal.getTime();
     }
 

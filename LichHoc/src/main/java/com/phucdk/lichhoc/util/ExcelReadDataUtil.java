@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -103,6 +104,7 @@ public class ExcelReadDataUtil {
                 //continue;
             }
             Teacher teacher = getTeacher(teacherName, generalData.getListBusyTeachers());
+            List<String> listTimes = new ArrayList<>();
             int numberOfRows = mySheet.getPhysicalNumberOfRows();
             Date startDateOfWeek = getCell(5, Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN, mySheet).getDateCellValue();
             int startRow = Constants.BUSY_SCHEDULE.ROW.START_ROW_FRANCE;
@@ -131,9 +133,13 @@ public class ExcelReadDataUtil {
                                 }
                             }
                         }
+                        if(!listTimes.contains(row_0.getStringCellValue().trim())){
+                            listTimes.add(row_0.getStringCellValue().trim());
+                        }                        
                     }
                 }
             }
+            generalData.getMapTeacherTimes().put(teacher, listTimes);
         }
     }
 

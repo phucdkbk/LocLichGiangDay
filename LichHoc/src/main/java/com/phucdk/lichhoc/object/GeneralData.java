@@ -7,7 +7,9 @@ package com.phucdk.lichhoc.object;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -18,6 +20,7 @@ public class GeneralData {
     private List<Teacher> listTeachers;
     private List<LectureSchedule> listLectureSchedules;
     private Date startDateOfWeek;
+    private Map<Teacher, List<String>> mapTeacherTimes;
 
     private List<Teacher> listBusyTeachers;
     private List<BusySchedule> listBusySchedules;
@@ -43,6 +46,7 @@ public class GeneralData {
         this.listLectureSchedules = new ArrayList<>();
         this.listBusyTeachers = new ArrayList<>();
         this.listBusySchedules = new ArrayList<>();
+        this.mapTeacherTimes = new HashMap<>();
     }
 
     public Date getStartDateOfWeek() {
@@ -67,5 +71,14 @@ public class GeneralData {
 
     public void setListBusySchedules(List<BusySchedule> listBusySchedules) {
         this.listBusySchedules = listBusySchedules;
-    }            
+    }
+
+    public Map<Teacher, List<String>> getMapTeacherTimes() {
+        return mapTeacherTimes;
+    }
+
+    public void setMapTeacherTimes(Map<Teacher, List<String>> mapTeacherTimes) {
+        this.mapTeacherTimes = mapTeacherTimes;
+    }
+    
 }

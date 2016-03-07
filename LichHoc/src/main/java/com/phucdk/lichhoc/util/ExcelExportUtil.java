@@ -10,6 +10,7 @@ import com.phucdk.lichhoc.object.GeneralData;
 import com.phucdk.lichhoc.object.LectureSchedule;
 import com.phucdk.lichhoc.object.Teacher;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,14 +41,22 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 public class ExcelExportUtil {
 
-    public static void exportFile(GeneralData generalData, String outputFolder) throws FileNotFoundException, IOException, Exception {
+    public static void exportFile(GeneralData generalData, String headerFooterFile, String outputFolder) throws FileNotFoundException, IOException, Exception {
         outputFolder = outputFolder + "\\" + DateTimeUtils.convertDateToString(new Date(), "yyyyMMdd_HHmmss");
-        Map<String, Short> mapCampusColor = new HashMap<>();
         List<String> listCampus = getListCampue(generalData);
-        Short[] arrColors = {HSSFColor.RED.index, HSSFColor.BLUE.index, HSSFColor.YELLOW.index, HSSFColor.GREEN.index, HSSFColor.ORANGE.index};
-        for (int i = 0; i < listCampus.size(); i++) {
-            mapCampusColor.put(listCampus.get(i), arrColors[i]);
-        }
+        Map<String, Short> mapCampusColor = getMapCampusColor(listCampus);
+
+
+        //---------get header footer info --------------
+        File myFile = new File(headerFooterFile);
+        FileInputStream fis = new FileInputStream(myFile);
+        // Finds the workbook instance for XLSX file
+        XSSFWorkbook headerFooterWorkBook = new XSSFWorkbook(fis);
+        // Return first sheet from the XLSX workbook
+        XSSFSheet headerFooterSheet = headerFooterWorkBook.getSheetAt(0);
+        headerFooterSheet.getRow(1);
+
+
         for (int i = 0; i < generalData.getListTeachers().size(); i++) {
             //for (int i = 0; i < 1; i++) {
             Teacher teacher = generalData.getListTeachers().get(i);
@@ -64,7 +73,7 @@ public class ExcelExportUtil {
             sheet.getPrintSetup().setLandscape(true);
             sheet.getPrintSetup().setPaperSize(PaperSize.A4_PAPER);
             sheet.setDisplayGridlines(false);
-            sheet.setColumnWidth(0, 1500);
+            sheet.setColumnWidth(0, 2000);
             sheet.setColumnWidth(1, 4200);
             sheet.setColumnWidth(2, 4200);
             sheet.setColumnWidth(3, 4200);
@@ -84,8 +93,8 @@ public class ExcelExportUtil {
             font.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
             cellStyleBold.setFont(font);//set it to bold
 
-            XSSFRow row1 = sheet.createRow((short) 1);
-            XSSFCell cell_10 = row1.createCell(0);
+            XSSFRow row1 = sheet.createRow((short) 1);            
+            XSSFCell cell_10 = row1.createCell(0);            
             cell_10.setCellStyle(cellStyleBold);
             cell_10.setCellValue("Teacher:");
 
@@ -93,13 +102,13 @@ public class ExcelExportUtil {
             cell_11.setCellStyle(cellStyleBold);
             cell_11.setCellValue(teacher.getFullName());
             //-----------------------  row 2 --------------------
-            XSSFRow row2 = sheet.createRow((short) 2);
-            XSSFCell cell_20 = row2.createCell(0);
-            cell_20.setCellStyle(cellStyleBold);
-            cell_20.setCellValue("Tel:");
-            XSSFCell cell_23 = row2.createCell(3);
-            cell_23.setCellStyle(cellStyleBold);
-            cell_23.setCellValue("Email");
+//            XSSFRow row2 = sheet.createRow((short) 2);
+//            XSSFCell cell_20 = row2.createCell(0);
+//            cell_20.setCellStyle(cellStyleBold);
+//            cell_20.setCellValue("Tel:");
+//            XSSFCell cell_23 = row2.createCell(3);
+//            cell_23.setCellStyle(cellStyleBold);
+//            cell_23.setCellValue("Email");
             //-----------------------  row 3 --------------------
             XSSFCellStyle cellStyleTitle = wb.createCellStyle();
             XSSFFont fontTitle = wb.createFont();//Create font
@@ -199,7 +208,7 @@ public class ExcelExportUtil {
             cell_57.setCellValue(DateTimeUtils.addDate(generalData.getStartDateOfWeek(), 6));
             //---------------------------------------------------
             List<LectureSchedule> listLectureSchedules = getListLectureScheduleByTeacher(generalData, teacher);
-            List<String> listTimes = getListTimes(listLectureSchedules);
+            List<String> listTimes = getListTimes(listLectureSchedules, generalData);
             List<BusySchedule> listBusySchedules = getListBusyScheduleByTeacher(generalData, teacher);
 
             //--------------- row style for each time----------
@@ -307,7 +316,7 @@ public class ExcelExportUtil {
                     } else {
                         loopCell_3.setCellStyle(cellStyleRow3);
                     }
-                    
+
                 }
 
                 for (BusySchedule busySchedule : listBusySchedulesByTime) {
@@ -375,6 +384,15 @@ public class ExcelExportUtil {
         }
     }
 
+    private static Map<String, Short> getMapCampusColor(List<String> listCampus) {
+        Map<String, Short> mapCampusColor = new HashMap<>();
+        Short[] arrColors = {HSSFColor.RED.index, HSSFColor.BLUE.index, HSSFColor.YELLOW.index, HSSFColor.GREEN.index, HSSFColor.ORANGE.index};
+        for (int i = 0; i < listCampus.size(); i++) {
+            mapCampusColor.put(listCampus.get(i), arrColors[i]);
+        }
+        return mapCampusColor;
+    }
+
     private static void setLectureValue(XSSFRow loopRow_0, LectureSchedule lectureSchedule, XSSFRow loopRow_1, XSSFRow loopRow_3, int column) {
         XSSFCell loopRow_0_monday = loopRow_0.createCell(column);
         loopRow_0_monday.setCellValue(lectureSchedule.getSchoolClass().getSchoolClassName());
@@ -416,12 +434,23 @@ public class ExcelExportUtil {
         return listBusySchedules;
     }
 
-    private static List<String> getListTimes(List<LectureSchedule> listLectureSchedules) {
+    private static List<String> getListTimes(List<LectureSchedule> listLectureSchedules, GeneralData generalData) {
         List<String> listTimes = new ArrayList<>();
         for (LectureSchedule lectureSchedule : listLectureSchedules) {
             if (lectureSchedule.getHour() != null) {
                 if (!listTimes.contains(lectureSchedule.getHour().trim())) {
                     listTimes.add(lectureSchedule.getHour().trim());
+                }
+            }
+        }
+        if (!listLectureSchedules.isEmpty()) {
+            LectureSchedule lectureSchedule = listLectureSchedules.get(0);
+            List<String> listTimeFromBusySchedule = generalData.getMapTeacherTimes().get(lectureSchedule.getTeacher());
+            if (listTimeFromBusySchedule != null) {
+                for (String time : listTimeFromBusySchedule) {
+                    if (!listTimes.contains(time)) {
+                        listTimes.add(time);
+                    }
                 }
             }
         }
