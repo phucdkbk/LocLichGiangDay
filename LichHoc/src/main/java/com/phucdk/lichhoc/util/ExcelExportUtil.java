@@ -7,10 +7,10 @@ package com.phucdk.lichhoc.util;
 
 import com.phucdk.lichhoc.object.BusySchedule;
 import com.phucdk.lichhoc.object.GeneralData;
+import com.phucdk.lichhoc.object.HeaderFooter;
 import com.phucdk.lichhoc.object.LectureSchedule;
 import com.phucdk.lichhoc.object.Teacher;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,21 +41,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 public class ExcelExportUtil {
 
-    public static void exportFile(GeneralData generalData, String headerFooterFile, String outputFolder) throws FileNotFoundException, IOException, Exception {
+    public static void exportFile(GeneralData generalData, HeaderFooter headerFooter, String outputFolder) throws FileNotFoundException, IOException, Exception {
         outputFolder = outputFolder + "\\" + DateTimeUtils.convertDateToString(new Date(), "yyyyMMdd_HHmmss");
         List<String> listCampus = getListCampue(generalData);
         Map<String, Short> mapCampusColor = getMapCampusColor(listCampus);
-
-
-        //---------get header footer info --------------
-        File myFile = new File(headerFooterFile);
-        FileInputStream fis = new FileInputStream(myFile);
-        // Finds the workbook instance for XLSX file
-        XSSFWorkbook headerFooterWorkBook = new XSSFWorkbook(fis);
-        // Return first sheet from the XLSX workbook
-        XSSFSheet headerFooterSheet = headerFooterWorkBook.getSheetAt(0);
-        headerFooterSheet.getRow(1);
-
 
         for (int i = 0; i < generalData.getListTeachers().size(); i++) {
             //for (int i = 0; i < 1; i++) {
@@ -85,16 +74,18 @@ public class ExcelExportUtil {
 //            for (int j = Constants.COLUMN.INVIDUAL.SUNDAY_COLUMN + 2; j < 16384; j++) {
 //                sheet.setColumnHidden(j, true);
 //            }
+            fillHeader(wb, sheet, headerFooter);
+            int headerHight = headerFooter.getListHeaderRows().size();
             //-----------------------  row 0 --------------------
-            sheet.createRow((short) 0);
+            sheet.createRow((short) headerHight + 0);
             //-----------------------  row 1 --------------------
             XSSFCellStyle cellStyleBold = wb.createCellStyle();
             Font font = wb.createFont();//Create font
             font.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
             cellStyleBold.setFont(font);//set it to bold
 
-            XSSFRow row1 = sheet.createRow((short) 1);            
-            XSSFCell cell_10 = row1.createCell(0);            
+            XSSFRow row1 = sheet.createRow((short) headerHight + 1);
+            XSSFCell cell_10 = row1.createCell(0);
             cell_10.setCellStyle(cellStyleBold);
             cell_10.setCellValue("Teacher:");
 
@@ -102,7 +93,7 @@ public class ExcelExportUtil {
             cell_11.setCellStyle(cellStyleBold);
             cell_11.setCellValue(teacher.getFullName());
             //-----------------------  row 2 --------------------
-//            XSSFRow row2 = sheet.createRow((short) 2);
+//            XSSFRow row2 = sheet.createRow((short) headerHight + 2);
 //            XSSFCell cell_20 = row2.createCell(0);
 //            cell_20.setCellStyle(cellStyleBold);
 //            cell_20.setCellValue("Tel:");
@@ -116,7 +107,7 @@ public class ExcelExportUtil {
             fontTitle.setFontHeightInPoints((short) 14);
             fontTitle.setUnderline(FontUnderline.SINGLE);
             cellStyleTitle.setFont(fontTitle);//set it to bold
-            XSSFRow row3 = sheet.createRow((short) 3);
+            XSSFRow row3 = sheet.createRow((short) headerHight + 3);
             XSSFCell cell_30 = row3.createCell(0);
             cell_30.setCellStyle(cellStyleTitle);
             cell_30.setCellValue(getWeekTitle(generalData));
@@ -138,7 +129,7 @@ public class ExcelExportUtil {
             cellStyleCell_40.setBorderLeft(HSSFCellStyle.BORDER_THIN);
             cellStyleCell_40.setAlignment(HorizontalAlignment.CENTER);
 
-            XSSFRow row4 = sheet.createRow((short) 4);
+            XSSFRow row4 = sheet.createRow((short) headerHight + 4);
             XSSFCell cell_40 = row4.createCell(0);
             cell_40.setCellStyle(cellStyleCell_40);
             cell_40.setCellValue("Time");
@@ -182,7 +173,7 @@ public class ExcelExportUtil {
             cellStyleCell_50.setBorderRight(HSSFCellStyle.BORDER_THIN);
             cellStyleCell_50.setBorderLeft(HSSFCellStyle.BORDER_THIN);
 
-            XSSFRow row5 = sheet.createRow((short) 5);
+            XSSFRow row5 = sheet.createRow((short) headerHight + 5);
             XSSFCell cell_50 = row5.createCell(0);
             cell_50.setCellStyle(cellStyleCell_50);
             XSSFCell cell_51 = row5.createCell(1);
@@ -244,21 +235,21 @@ public class ExcelExportUtil {
             cellStyleRow3.setWrapText(true);
 
             Map<String, XSSFCellStyle> mapCampusCellStyle = new HashMap<>();
-            for (int j = 0; j < listCampus.size(); j++) {
+            for (String campus : listCampus) {
                 Font newFontCampus = wb.createFont();//Create font
                 newFontCampus.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
-                newFontCampus.setColor(mapCampusColor.get(listCampus.get(j)));
+                newFontCampus.setColor(mapCampusColor.get(campus));
                 XSSFCellStyle cellStyleRow3new = (XSSFCellStyle) cellStyleRow3.clone();
                 cellStyleRow3new.setFont(newFontCampus);
-                mapCampusCellStyle.put(listCampus.get(j), cellStyleRow3new);
+                mapCampusCellStyle.put(campus, cellStyleRow3new);
             }
 
             for (int j = 0; j < listTimes.size(); j++) {
                 String time = listTimes.get(j);
-                XSSFRow loopRow_0 = sheet.createRow((short) (6 + j * 4));
-                XSSFRow loopRow_1 = sheet.createRow((short) (6 + j * 4 + 1));
-                XSSFRow loopRow_2 = sheet.createRow((short) (6 + j * 4 + 2));
-                XSSFRow loopRow_3 = sheet.createRow((short) (6 + j * 4 + 3));
+                XSSFRow loopRow_0 = sheet.createRow((short) (headerHight + 6 + j * 4));
+                XSSFRow loopRow_1 = sheet.createRow((short) (headerHight + 6 + j * 4 + 1));
+                XSSFRow loopRow_2 = sheet.createRow((short) (headerHight + 6 + j * 4 + 2));
+                XSSFRow loopRow_3 = sheet.createRow((short) (headerHight + 6 + j * 4 + 3));
                 XSSFCell loopRow_01 = loopRow_0.createCell(0);
                 loopRow_01.setCellValue(time);
 
@@ -373,6 +364,8 @@ public class ExcelExportUtil {
                     }
                 }
             }
+
+            fillFooter(wb, sheet, headerFooter, listTimes);
 
             File folderFile = new File(outputFolder);
             if (!folderFile.exists()) {
@@ -576,6 +569,33 @@ public class ExcelExportUtil {
             }
         }
         return listCampus;
+    }
+
+    private static void fillHeader(XSSFWorkbook wb, XSSFSheet sheet, HeaderFooter headerFooter) {
+        fillRows(wb, sheet, headerFooter.getListHeaderRows(), 0);
+    }
+
+    private static void fillRows(XSSFWorkbook wb, XSSFSheet sheet, List<XSSFRow> listRows, int startRow) {
+        for (int i = 0; i < listRows.size(); i++) {
+            XSSFRow rowHeader = listRows.get(i);
+            XSSFRow rowOutput = sheet.createRow(startRow + i);
+            for (int j = 0; j < 8; j++) {
+                XSSFCell cellOutput = rowOutput.createCell(j);
+                if (rowHeader.getCell(j) != null) {
+                    if (!StringUtils.isEmpty(rowHeader.getCell(j).getStringCellValue())) {
+                        cellOutput.setCellValue(rowHeader.getCell(j).getRichStringCellValue());
+                    }
+                    XSSFCellStyle newStyle = wb.createCellStyle();
+                    newStyle.cloneStyleFrom(rowHeader.getCell(j).getCellStyle());
+                    cellOutput.setCellStyle(newStyle);
+                }
+            }
+        }
+    }
+
+    private static void fillFooter(XSSFWorkbook wb, XSSFSheet sheet, HeaderFooter headerFooter, List<String> listTimes) {
+        int startFillRow = headerFooter.getListHeaderRows().size() + 6 + 4 * listTimes.size() + 1;
+        fillRows(wb, sheet, headerFooter.getListFooterRows(), startFillRow);
     }
 
 }

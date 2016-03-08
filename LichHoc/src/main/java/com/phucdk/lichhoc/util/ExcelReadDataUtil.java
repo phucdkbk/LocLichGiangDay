@@ -7,6 +7,7 @@ package com.phucdk.lichhoc.util;
 
 import com.phucdk.lichhoc.object.BusySchedule;
 import com.phucdk.lichhoc.object.GeneralData;
+import com.phucdk.lichhoc.object.HeaderFooter;
 import com.phucdk.lichhoc.object.LectureSchedule;
 import com.phucdk.lichhoc.object.SchoolClass;
 import com.phucdk.lichhoc.object.Teacher;
@@ -33,114 +34,120 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 public class ExcelReadDataUtil {
 
-    public static GeneralData readData(String fileName, String busySchedule) throws IOException {
+    public static GeneralData readData(String fileName, String busySchedule) throws Exception {
         GeneralData generalData = new GeneralData();
         getScheduleData(fileName, generalData);
         getBusyScheduleData(busySchedule, generalData);
         return generalData;
     }
 
-    private static void getScheduleData(String fileName, GeneralData generalData) throws FileNotFoundException, IOException {
-        File myFile = new File(fileName);
-        FileInputStream fis = new FileInputStream(myFile);
-        // Finds the workbook instance for XLSX file
-        XSSFWorkbook myWorkBook = new XSSFWorkbook(fis);
-        // Return first sheet from the XLSX workbook
-        XSSFSheet mySheet = myWorkBook.getSheetAt(0);
-        int startRow = Constants.ROW.START_ROW;
-        Date startDateOfWeek = getCell(1, Constants.COLUMN.MONDAY_COLUMN, mySheet).getDateCellValue();
-        generalData.setStartDateOfWeek(startDateOfWeek);
-        while (haveNextClass(startRow, mySheet)) {
-            ClassRowPair classRowPair = getNextClassRowPair(startRow, mySheet);
-            if (classRowPair != null) {
-                for (int i = Constants.COLUMN.MONDAY_COLUMN; i <= Constants.COLUMN.SUNDAY_COLUMN; i++) {
-                    if (!isEmptyCell(classRowPair.getFromRow(), i, mySheet)) {
-                        String teacherName = getStringCellValue(classRowPair.getFromRow(), i, mySheet);
-                        if ("Carmel".equals(teacherName)) {
-                        } else {
-                            //continue;
-                        }
-                        Teacher teacher = getTeacher(teacherName, generalData.getListTeachers());
-                        LectureSchedule lectureSchedule = new LectureSchedule();
-                        lectureSchedule.setTeacher(teacher);
-                        String campus = getStringCellValue(classRowPair.getFromRow(), Constants.COLUMN.CAMPUS_COLUMN, mySheet);
-                        String schoolClassName = getStringCellValue(classRowPair.getFromRow(), Constants.COLUMN.SCHOOL_CLASS_COLUMN, mySheet);
-                        String time = getStringCellValue(classRowPair.getFromRow(), Constants.COLUMN.TIME_COLUMN, mySheet);
-                        SchoolClass schoolClass = new SchoolClass(schoolClassName);
-                        Date date = getDateOfColumn(startDateOfWeek, i);
-                        lectureSchedule.setCampus(campus);
-                        lectureSchedule.setSchoolClass(schoolClass);
-                        lectureSchedule.setDate(date);
-                        lectureSchedule.setHour(time);
-                        String lession = null;
-                        for (int j = classRowPair.getFromRow() + 1; j <= classRowPair.getToRow(); j++) {
-                            lession = getStringCellValue(j, i, mySheet);
-                            if (lession != null && !"".equals(lession.trim())) {
-                                break;
+    private static void getScheduleData(String fileName, GeneralData generalData) throws Exception {
+        try {
+            File myFile = new File(fileName);
+            FileInputStream fis = new FileInputStream(myFile);
+            XSSFWorkbook myWorkBook = new XSSFWorkbook(fis);
+            XSSFSheet mySheet = myWorkBook.getSheetAt(0);
+            int startRow = Constants.ROW.START_ROW;
+            Date startDateOfWeek = getCell(1, Constants.COLUMN.MONDAY_COLUMN, mySheet).getDateCellValue();
+            generalData.setStartDateOfWeek(startDateOfWeek);
+            while (haveNextClass(startRow, mySheet)) {
+                ClassRowPair classRowPair = getNextClassRowPair(startRow, mySheet);
+                if (classRowPair != null) {
+                    for (int i = Constants.COLUMN.MONDAY_COLUMN; i <= Constants.COLUMN.SUNDAY_COLUMN; i++) {
+                        if (!isEmptyCell(classRowPair.getFromRow(), i, mySheet)) {
+                            String teacherName = getStringCellValue(classRowPair.getFromRow(), i, mySheet);
+                            if ("Carmel".equals(teacherName)) {
+                            } else {
+                                //continue;
                             }
-                        }
-                        lectureSchedule.setLession(lession);
-                        generalData.getListLectureSchedules().add(lectureSchedule);
-                    }
-                }
-                startRow = classRowPair.getToRow();
-            }
-        }
-        markConfictLectureSchedule(generalData);
-    }
-
-    private static void getBusyScheduleData(String fileName, GeneralData generalData) throws FileNotFoundException, IOException {
-        File myFile = new File(fileName);
-        FileInputStream fis = new FileInputStream(myFile);
-        // Finds the workbook instance for XLSX file
-        XSSFWorkbook myWorkBook = new XSSFWorkbook(fis);
-
-        for (int i = 0; i < myWorkBook.getNumberOfSheets(); i++) {
-            //for (int i = 0; i < 1; i++) {
-            XSSFSheet mySheet = myWorkBook.getSheetAt(i);
-            String teacherName = mySheet.getSheetName().trim();
-            if ("Carmel".equals(teacherName)) {
-            } else {
-                //continue;
-            }
-            Teacher teacher = getTeacher(teacherName, generalData.getListBusyTeachers());
-            List<String> listTimes = new ArrayList<>();
-            int numberOfRows = mySheet.getPhysicalNumberOfRows();
-            Date startDateOfWeek = getCell(5, Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN, mySheet).getDateCellValue();
-            int startRow = Constants.BUSY_SCHEDULE.ROW.START_ROW_FRANCE;
-            if (startDateOfWeek == null) {
-                startDateOfWeek = getCell(4, Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN, mySheet).getDateCellValue();
-                startRow = Constants.BUSY_SCHEDULE.ROW.START_ROW_VI;
-            }
-            for (int j = startRow; j <= numberOfRows; j++) {
-                XSSFRow row;
-                row = mySheet.getRow(j);
-                if (row != null) {
-                    XSSFCell row_0 = row.getCell(0);
-                    if (row_0 != null && !StringUtils.isEmpty(row_0.getStringCellValue())) {
-                        for (int k = Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN; k <= Constants.BUSY_SCHEDULE.COLUMN.SUNDAY_COLUMN; k++) {
-                            XSSFCell cell_dayOfWeek = row.getCell(k);
-                            if (cell_dayOfWeek != null) {
-                                XSSFCellStyle cellStyle = cell_dayOfWeek.getCellStyle();
-//                                System.out.println(cellStyle.getFillBackgroundColor());
-//                                System.out.println(cellStyle.getFillPattern());
-                                if (cellStyle.getFillPattern() != (int) HSSFCellStyle.NO_FILL) {
-                                    BusySchedule busySchedule = new BusySchedule();
-                                    busySchedule.setTeacher(teacher);
-                                    busySchedule.setHour(row_0.getStringCellValue().trim());
-                                    busySchedule.setDate(getDateOfColumnBusy(startDateOfWeek, k));
-                                    generalData.getListBusySchedules().add(busySchedule);
+                            Teacher teacher = getTeacher(teacherName, generalData.getListTeachers());
+                            LectureSchedule lectureSchedule = new LectureSchedule();
+                            lectureSchedule.setTeacher(teacher);
+                            String campus = getStringCellValue(classRowPair.getFromRow(), Constants.COLUMN.CAMPUS_COLUMN, mySheet);
+                            String schoolClassName = getStringCellValue(classRowPair.getFromRow(), Constants.COLUMN.SCHOOL_CLASS_COLUMN, mySheet);
+                            String time = getStringCellValue(classRowPair.getFromRow(), Constants.COLUMN.TIME_COLUMN, mySheet);
+                            SchoolClass schoolClass = new SchoolClass(schoolClassName);
+                            Date date = getDateOfColumn(startDateOfWeek, i);
+                            lectureSchedule.setCampus(campus);
+                            lectureSchedule.setSchoolClass(schoolClass);
+                            lectureSchedule.setDate(date);
+                            lectureSchedule.setHour(time);
+                            String lession = null;
+                            for (int j = classRowPair.getFromRow() + 1; j <= classRowPair.getToRow(); j++) {
+                                lession = getStringCellValue(j, i, mySheet);
+                                if (lession != null && !"".equals(lession.trim())) {
+                                    break;
                                 }
                             }
+                            lectureSchedule.setLession(lession);
+                            generalData.getListLectureSchedules().add(lectureSchedule);
                         }
-                        if(!listTimes.contains(row_0.getStringCellValue().trim())){
-                            listTimes.add(row_0.getStringCellValue().trim());
-                        }                        
                     }
+                    startRow = classRowPair.getToRow();
                 }
             }
-            generalData.getMapTeacherTimes().put(teacher, listTimes);
+            markConfictLectureSchedule(generalData);
+        } catch (FileNotFoundException ex) {
+            throw new Exception("Khong tim thay file lich chung: " + fileName, ex);
         }
+    }
+
+    private static void getBusyScheduleData(String fileName, GeneralData generalData) throws Exception {
+        try {
+            File myFile = new File(fileName);
+            FileInputStream fis = new FileInputStream(myFile);
+            // Finds the workbook instance for XLSX file
+            XSSFWorkbook myWorkBook = new XSSFWorkbook(fis);
+
+            for (int i = 0; i < myWorkBook.getNumberOfSheets(); i++) {
+                XSSFSheet mySheet = myWorkBook.getSheetAt(i);
+                String teacherName = mySheet.getSheetName().trim();
+                if ("Carmel".equals(teacherName)) {
+                } else {
+                    //continue;
+                }
+                Teacher teacher = getTeacher(teacherName, generalData.getListBusyTeachers());
+                List<String> listTimes = new ArrayList<>();
+                int numberOfRows = mySheet.getPhysicalNumberOfRows();
+                Date startDateOfWeek = getCell(5, Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN, mySheet).getDateCellValue();
+                int startRow = Constants.BUSY_SCHEDULE.ROW.START_ROW_FRANCE;
+                if (startDateOfWeek == null) {
+                    startDateOfWeek = getCell(4, Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN, mySheet).getDateCellValue();
+                    startRow = Constants.BUSY_SCHEDULE.ROW.START_ROW_VI;
+                }
+                for (int j = startRow; j <= numberOfRows; j++) {
+                    XSSFRow row;
+                    row = mySheet.getRow(j);
+                    if (row != null) {
+                        XSSFCell row_0 = row.getCell(0);
+                        if (row_0 != null && !StringUtils.isEmpty(row_0.getStringCellValue())) {
+                            for (int k = Constants.BUSY_SCHEDULE.COLUMN.MONDAY_COLUMN; k <= Constants.BUSY_SCHEDULE.COLUMN.SUNDAY_COLUMN; k++) {
+                                XSSFCell cell_dayOfWeek = row.getCell(k);
+                                if (cell_dayOfWeek != null) {
+                                    XSSFCellStyle cellStyle = cell_dayOfWeek.getCellStyle();
+//                                System.out.println(cellStyle.getFillBackgroundColor());
+//                                System.out.println(cellStyle.getFillPattern());
+                                    if (cellStyle.getFillPattern() != (int) HSSFCellStyle.NO_FILL) {
+                                        BusySchedule busySchedule = new BusySchedule();
+                                        busySchedule.setTeacher(teacher);
+                                        busySchedule.setHour(row_0.getStringCellValue().trim());
+                                        busySchedule.setDate(getDateOfColumnBusy(startDateOfWeek, k));
+                                        generalData.getListBusySchedules().add(busySchedule);
+                                    }
+                                }
+                            }
+                            if (!listTimes.contains(row_0.getStringCellValue().trim())) {
+                                listTimes.add(row_0.getStringCellValue().trim());
+                            }
+                        }
+                    }
+                }
+                generalData.getMapTeacherTimes().put(teacher, listTimes);
+            }
+        } catch (FileNotFoundException ex) {
+            throw new Exception("Khong tim thay file lich chung: " + fileName, ex);
+        }
+
     }
 
     private static Teacher getTeacher(String teacherName, List<Teacher> listTeachers) {
@@ -169,7 +176,6 @@ public class ExcelReadDataUtil {
             XSSFRow row;
             XSSFCell cell;
             String cellValue = null;
-            //System.out.println(fromRow);
             while (StringUtils.isEmpty(cellValue) && startRow < numberOfRow) {
                 startRow++;
                 row = sheet.getRow(startRow);
@@ -215,9 +221,9 @@ public class ExcelReadDataUtil {
     }
 
     private static Teacher getTeacherByName(String teacherName, List<Teacher> listTeachers) {
-        for (int i = 0; i < listTeachers.size(); i++) {
-            if (teacherName.equals(listTeachers.get(i).getFullName())) {
-                return listTeachers.get(i);
+        for (Teacher teacher : listTeachers) {
+            if (teacherName.equals(teacher.getFullName())) {
+                return teacher;
             }
         }
         return null;
@@ -259,6 +265,47 @@ public class ExcelReadDataUtil {
             return false;
         }
         return true;
+    }
+
+    public static HeaderFooter readHeaderFooter(String headerFooterFile) throws Exception {
+        HeaderFooter headerFooter = new HeaderFooter();
+        try {
+            File myFile = new File(headerFooterFile);
+            FileInputStream fis = new FileInputStream(myFile);
+            XSSFWorkbook headerFooterWorkBook = new XSSFWorkbook(fis);
+            XSSFSheet headerFooterSheet = headerFooterWorkBook.getSheetAt(0);
+
+            int startHeaderRow = 0;
+            int endHeaderRow = 0;
+            int startFooterRow = 0;
+            int endFooterRow = 0;
+            for (int i = 0; i < 100; i++) {
+                String cellValue = getStringCellValue(i, 0, headerFooterSheet);
+                if (cellValue != null && cellValue.toLowerCase().contains("begin header")) {
+                    startHeaderRow = i + 1;
+                }
+                if (cellValue != null && cellValue.toLowerCase().contains("end header")) {
+                    endHeaderRow = i - 1;
+                }
+                if (cellValue != null && cellValue.toLowerCase().contains("begin footer")) {
+                    startFooterRow = i + 1;
+                }
+                if (cellValue != null && cellValue.toLowerCase().contains("end footer")) {
+                    endFooterRow = i - 1;
+                }
+            }
+            for (int i = startHeaderRow; i <= endHeaderRow; i++) {
+                headerFooter.getListHeaderRows().add(headerFooterSheet.getRow(i));
+            }
+            for (int i = startFooterRow; i <= endFooterRow; i++) {
+                headerFooter.getListFooterRows().add(headerFooterSheet.getRow(i));
+            }
+        } catch (FileNotFoundException ex) {
+            throw new Exception("Khong tim thay file header_footer: " + headerFooterFile, ex);
+        } catch (IOException ex) {
+            throw new Exception("Khong tim thay file header_footer: " + headerFooterFile, ex);
+        }
+        return headerFooter;
     }
 
 }
