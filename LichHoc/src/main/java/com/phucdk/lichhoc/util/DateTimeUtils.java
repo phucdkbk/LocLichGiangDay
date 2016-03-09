@@ -39,7 +39,7 @@ public class DateTimeUtils {
         cal.setTime(startDateOfWeek);
         cal.setFirstDayOfWeek(Calendar.MONDAY);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        cal.add(Calendar.DATE, Calendar.SUNDAY - Calendar.MONDAY);
+        cal.add(Calendar.DATE, 6);
         return cal.getTime();
     }
 

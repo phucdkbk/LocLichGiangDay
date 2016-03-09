@@ -17,7 +17,7 @@ import com.phucdk.lichhoc.util.ExcelReadDataUtil;
 public class Test {
 
     public static void main(String[] args) throws Exception {
-        GeneralData generalData = ExcelReadDataUtil.readData("D:\\20150831\\Projects\\LoclichCongtac\\1. General file.xlsx",
+        GeneralData generalData = ExcelReadDataUtil.readData("D:\\20150831\\Projects\\LoclichCongtac\\Run app 29.02-06.03.xlsx",
                 "D:\\20150831\\Projects\\LoclichCongtac\\LocLichGiangDay\\Busy schedule - General 20160307.xlsx");
         HeaderFooter headerFooter = ExcelReadDataUtil.readHeaderFooter("D:\\20150831\\Projects\\LoclichCongtac\\LocLichGiangDay\\header_footer.xlsx");
         ExcelExportUtil.exportFile(generalData, headerFooter , "D:\\20150831\\Projects\\LoclichCongtac\\output\\");
