@@ -153,7 +153,7 @@ public class ExcelReadDataUtil {
     private static Teacher getTeacher(String teacherName, List<Teacher> listTeachers) {
         Teacher teacher = null;
         if (!existTeacher(teacherName, listTeachers)) {
-            teacher = new Teacher();
+            teacher = new Teacher();            
             teacher.setFullName(teacherName);
             listTeachers.add(teacher);
         } else {
@@ -200,7 +200,7 @@ public class ExcelReadDataUtil {
     public static String getStringCellValue(int row, int column, XSSFSheet sheet) {
         Cell cell = getCell(row, column, sheet);
         if (cell != null) {
-            return cell.getStringCellValue();
+            return cell.getStringCellValue().trim();
         } else {
             return null;
         }

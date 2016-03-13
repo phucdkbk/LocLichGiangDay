@@ -77,14 +77,14 @@ public class ExcelExportUtil {
             fillHeader(wb, sheet, headerFooter);
             int headerHight = headerFooter.getListHeaderRows().size();
             //-----------------------  row 0 --------------------
-            sheet.createRow((short) headerHight + 0);
+            //sheet.createRow((short) headerHight + 0);
             //-----------------------  row 1 --------------------
             XSSFCellStyle cellStyleBold = wb.createCellStyle();
             Font font = wb.createFont();//Create font
             font.setBoldweight(Font.BOLDWEIGHT_BOLD);//Make font bold
             cellStyleBold.setFont(font);//set it to bold
 
-            XSSFRow row1 = sheet.createRow((short) headerHight + 1);
+            XSSFRow row1 = sheet.createRow((short) headerHight + 0);
             XSSFCell cell_10 = row1.createCell(0);
             cell_10.setCellStyle(cellStyleBold);
             cell_10.setCellValue("Teacher:");
@@ -107,10 +107,10 @@ public class ExcelExportUtil {
             fontTitle.setFontHeightInPoints((short) 14);
             fontTitle.setUnderline(FontUnderline.SINGLE);
             cellStyleTitle.setFont(fontTitle);//set it to bold
-            XSSFRow row3 = sheet.createRow((short) headerHight + 3);
-            XSSFCell cell_30 = row3.createCell(0);
-            cell_30.setCellStyle(cellStyleTitle);
-            cell_30.setCellValue(getWeekTitle(generalData));
+//            XSSFRow row3 = sheet.createRow((short) headerHight + 3);
+//            XSSFCell cell_30 = row3.createCell(0);
+//            cell_30.setCellStyle(cellStyleTitle);
+//            cell_30.setCellValue(getWeekTitle(generalData));
             //-----------------------  row 4 --------------------
             XSSFCellStyle cellStyleDateLabel = wb.createCellStyle();
             cellStyleDateLabel.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
@@ -129,7 +129,7 @@ public class ExcelExportUtil {
             cellStyleCell_40.setBorderLeft(HSSFCellStyle.BORDER_THIN);
             cellStyleCell_40.setAlignment(HorizontalAlignment.CENTER);
 
-            XSSFRow row4 = sheet.createRow((short) headerHight + 4);
+            XSSFRow row4 = sheet.createRow((short) headerHight + 2);
             XSSFCell cell_40 = row4.createCell(0);
             cell_40.setCellStyle(cellStyleCell_40);
             cell_40.setCellValue("Time");
@@ -173,7 +173,7 @@ public class ExcelExportUtil {
             cellStyleCell_50.setBorderRight(HSSFCellStyle.BORDER_THIN);
             cellStyleCell_50.setBorderLeft(HSSFCellStyle.BORDER_THIN);
 
-            XSSFRow row5 = sheet.createRow((short) headerHight + 5);
+            XSSFRow row5 = sheet.createRow((short) headerHight + 3);
             XSSFCell cell_50 = row5.createCell(0);
             cell_50.setCellStyle(cellStyleCell_50);
             XSSFCell cell_51 = row5.createCell(1);
@@ -246,10 +246,10 @@ public class ExcelExportUtil {
 
             for (int j = 0; j < listTimes.size(); j++) {
                 String time = listTimes.get(j);
-                XSSFRow loopRow_0 = sheet.createRow((short) (headerHight + 6 + j * 4));
-                XSSFRow loopRow_1 = sheet.createRow((short) (headerHight + 6 + j * 4 + 1));
-                XSSFRow loopRow_2 = sheet.createRow((short) (headerHight + 6 + j * 4 + 2));
-                XSSFRow loopRow_3 = sheet.createRow((short) (headerHight + 6 + j * 4 + 3));
+                XSSFRow loopRow_0 = sheet.createRow((short) (headerHight + 4 + j * 4));
+                XSSFRow loopRow_1 = sheet.createRow((short) (headerHight + 4 + j * 4 + 1));
+                XSSFRow loopRow_2 = sheet.createRow((short) (headerHight + 4 + j * 4 + 2));
+                XSSFRow loopRow_3 = sheet.createRow((short) (headerHight + 4 + j * 4 + 3));
                 XSSFCell loopRow_01 = loopRow_0.createCell(0);
                 loopRow_01.setCellValue(time);
 
@@ -379,9 +379,12 @@ public class ExcelExportUtil {
 
     private static Map<String, Short> getMapCampusColor(List<String> listCampus) {
         Map<String, Short> mapCampusColor = new HashMap<>();
-        Short[] arrColors = {HSSFColor.RED.index, HSSFColor.BLUE.index, HSSFColor.YELLOW.index, HSSFColor.GREEN.index, HSSFColor.ORANGE.index};
+        Short[] arrColors = {HSSFColor.RED.index, HSSFColor.BLUE.index, HSSFColor.YELLOW.index, HSSFColor.GREEN.index, HSSFColor.ORANGE.index, HSSFColor.VIOLET.index, HSSFColor.PINK.index,
+            HSSFColor.BROWN.index, HSSFColor.BLUE_GREY.index, HSSFColor.PALE_BLUE.index};
         for (int i = 0; i < listCampus.size(); i++) {
-            mapCampusColor.put(listCampus.get(i), arrColors[i]);
+            if (i < arrColors.length) {
+                mapCampusColor.put(listCampus.get(i), arrColors[i]);
+            }
         }
         return mapCampusColor;
     }
@@ -429,6 +432,13 @@ public class ExcelExportUtil {
 
     private static List<String> getListTimes(List<LectureSchedule> listLectureSchedules, GeneralData generalData) {
         List<String> listTimes = new ArrayList<>();
+        filterListTimesFromListSchedule(listLectureSchedules, listTimes);
+        //addListTimesFromBusySchedule(listLectureSchedules, generalData, listTimes);
+        sortTimes(listTimes);
+        return listTimes;
+    }
+
+    private static void filterListTimesFromListSchedule(List<LectureSchedule> listLectureSchedules, List<String> listTimes) {
         for (LectureSchedule lectureSchedule : listLectureSchedules) {
             if (lectureSchedule.getHour() != null) {
                 if (!listTimes.contains(lectureSchedule.getHour().trim())) {
@@ -436,6 +446,9 @@ public class ExcelExportUtil {
                 }
             }
         }
+    }
+
+    private static void addListTimesFromBusySchedule(List<LectureSchedule> listLectureSchedules, GeneralData generalData, List<String> listTimes) {
         if (!listLectureSchedules.isEmpty()) {
             LectureSchedule lectureSchedule = listLectureSchedules.get(0);
             List<String> listTimeFromBusySchedule = generalData.getMapTeacherTimes().get(lectureSchedule.getTeacher());
@@ -447,7 +460,9 @@ public class ExcelExportUtil {
                 }
             }
         }
+    }
 
+    private static void sortTimes(List<String> listTimes) {
         for (int i = 0; i < listTimes.size() - 1; i++) {
             for (int j = i + 1; j < listTimes.size(); j++) {
                 if (StringUtils.compareTime(listTimes.get(i), listTimes.get(j)) < 0) {
@@ -457,7 +472,6 @@ public class ExcelExportUtil {
                 }
             }
         }
-        return listTimes;
     }
 
     private static List<LectureSchedule> getListLectureScheduleByTime(List<LectureSchedule> listLectureSchedules, String time) {
@@ -594,7 +608,7 @@ public class ExcelExportUtil {
     }
 
     private static void fillFooter(XSSFWorkbook wb, XSSFSheet sheet, HeaderFooter headerFooter, List<String> listTimes) {
-        int startFillRow = headerFooter.getListHeaderRows().size() + 6 + 4 * listTimes.size() + 1;
+        int startFillRow = headerFooter.getListHeaderRows().size() + 4 + 4 * listTimes.size() + 1;
         fillRows(wb, sheet, headerFooter.getListFooterRows(), startFillRow);
     }
 

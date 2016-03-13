@@ -14,10 +14,10 @@ public interface Constants {
     public interface COLUMN {
 
         public static final int TIME_COLUMN = 2;
-        public static final int MONDAY_COLUMN = 9;
-        public static final int SUNDAY_COLUMN = 15;
-        public static final int CAMPUS_COLUMN = 4;
-        public static final int SCHOOL_CLASS_COLUMN = 6;
+        public static final int MONDAY_COLUMN = 6;
+        public static final int SUNDAY_COLUMN = 12;
+        public static final int CAMPUS_COLUMN = 1;
+        public static final int SCHOOL_CLASS_COLUMN = 3;
 
         public interface INVIDUAL {
 
